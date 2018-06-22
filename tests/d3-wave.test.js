@@ -1,6 +1,5 @@
+import * as d3 from "d3";
 import WaveGraph from '../src/d3-wave';
-
-var d3 = require("d3");
 
 describe('{unit}: Testing wave rendering', () => {
   var svg = d3.select("body")
