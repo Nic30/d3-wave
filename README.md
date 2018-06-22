@@ -5,13 +5,13 @@ D3.js based wave (signal) visualizer
 
 This library renders signal dumps into specified svg. (GTKWave for javascript)
 
-# Features:
+## Features
 
 * Vertical scrolling and zoom
 * Renderers for int, str, bit and bit vector values
 
 
-# Input JSON format
+## Input JSON format
 
 ```
 scope
