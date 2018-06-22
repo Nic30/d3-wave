@@ -3,7 +3,7 @@
 
 D3.js based wave (signal) visualizer
 
-This library renders signal dumps into specified svg.
+This library renders signal dumps into specified svg. (GTKWave for javascript)
 
 # Features:
 
