@@ -194,8 +194,6 @@ export default function WaveGraph(svg) {
 }
 
 
-var waveGraph = new WaveGraph(svg);
-
 function keysOfDict(obj) {
     var keys = [];
 
@@ -213,7 +211,7 @@ function temporaryFlattenSignals(sigs, res) {
 	})
 }
 
-function temporaryFlattenSignal(s, res) {
+export function temporaryFlattenSignal(s, res) {
 	if (s.children) {
 		// hierachical interface
 		// add separator
