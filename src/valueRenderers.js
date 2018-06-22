@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 export const T_BIT = "bit"
 export const T_ENUM = "enum"
 export const T_BITS = "bits"
