@@ -9,3 +9,25 @@ This library renders signal dumps into specified svg. (GTKWave for javascript)
 
 * Vertical scrolling and zoom
 * Renderers for int, str, bit and bit vector values
+
+
+# Input JSON format
+
+```
+scope
+{ "name": "<scope name>"
+  "children" : {"<children name>" : child}
+}
+
+child can be scope or signal record
+
+signal record 
+{ "name": "<signal name>"
+  "type": {"sigType": "<vcd signal type>",
+           "width": <bit width of signal (integer)>},
+  "data": [<data records>],
+}
+
+data record format
+[<time (number)>, <value (string, format dependent on datatype)>]
+```
