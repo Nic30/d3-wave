@@ -10,7 +10,7 @@ node_js:
 install:
 - npm install
 # for deploy
-- npm install rollup preamble -g 
+- npm install rollup -g 
 # for build, test and coveralls
 - travis_wait 20 npm install --only=dev
 script:

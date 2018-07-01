@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "init": "eslint --init",
-    "build": "rm -rf dist && mkdir dist && NODE_ENV=production rollup -c --banner \"$(preamble)\"",
+    "build": "rm -rf dist && mkdir dist && NODE_ENV=production rollup -c",
     "clean": "rm -rf dist/ node_modules/",
     "prepare": "npm run build",
     "pretest": "npm run build",
@@ -52,7 +52,6 @@
     "babel-preset-env": "latest",
     "babel-preset-stage-0": "latest",
     "jest": "latest",
-    "package-preamble": "0.1",
     "rollup": "0.52"
   },
   "jest": {
