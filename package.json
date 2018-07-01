@@ -1,12 +1,13 @@
 {
   "name": "d3-wave",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "D3.js and ELK based schematic visualizer",
   "main": "index.js",
   "scripts": {
     "init": "eslint --init",
     "start": "babel src -D -d dist --watch",
     "build": "babel src -D -d dist",
+    "compile": "npm run build",
     "clean": "rm -rf dist/ node_modules/",
     "prepare": "npm run build",
     "pretest": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
