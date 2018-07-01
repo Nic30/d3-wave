@@ -5,11 +5,10 @@
   "main": "index.js",
   "scripts": {
     "init": "eslint --init",
-    "start": "babel src -D -d dist --watch",
-    "build": "babel src -D -d dist",
+    "build": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
     "clean": "rm -rf dist/ node_modules/",
     "prepare": "npm run build",
-    "pretest": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
+    "pretest": "npm run build",
     "test": "jest",
     "coverage": "jest --coverage",
     "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
@@ -40,11 +39,6 @@
     "webworker-threads": "latest"
   },
   "devDependencies": {
-    "babel": "latest",
-    "babel-cli": "latest",
-    "babel-eslint": "latest",
-    "babel-plugin-transform-object-rest-spread": "latest",
-    "babel-preset-env": "latest",
     "coveralls": "latest",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "latest",
