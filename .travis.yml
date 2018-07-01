@@ -8,7 +8,7 @@ language: node_js
 node_js:
 - '7'
 install:
-- npm install --only=dev --loglevel info
+- travis_wait 20 npm install --only=dev --loglevel info
 - npm install
 script:
 - npm run coveralls
