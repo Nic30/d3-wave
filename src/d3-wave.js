@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-
+import {renderWaveRow } from "./valueRenderers";
 // zoom+drag https://bl.ocks.org/mbostock/6123708
 
 export default function WaveGraph(svg) {
@@ -191,8 +191,33 @@ export default function WaveGraph(svg) {
         .extent([[0, 0], [maxT, 0]])
         .on("zoom", zoomed);
     svg.call(zoom)
+    
+    graph.temporaryFlattenSignal = function (s, res) {
+		if (s.children) {
+			// hierachical interface
+			// add separator
+			res.push([s.name, {"name": "bit"}, []]);
+		    // add sub signals
+			graph.temporaryFlattenSignals(s.children, res);
+		} else {
+			// simple signal
+			var tName;
+			if (s.type.width == 1)
+				tName = "bit";
+			else
+				tName = "bits";
+			res.push([s.name, {"name": tName, "width": s.type.width}, s.data]);
+		}
+    }
+    graph.temporaryFlattenSignals = function(sigs, res) {
+    	keysOfDict(sigs).sort().forEach(function(k){
+    	    var ch = sigs[k];
+    	 	graph.temporaryFlattenSignal(ch, res)
+    	})
+    }
+    
+    return graph;
 }
-
 
 function keysOfDict(obj) {
     var keys = [];
@@ -204,27 +229,5 @@ function keysOfDict(obj) {
     return keys;
 }
 
-function temporaryFlattenSignals(sigs, res) {
-	keysOfDict(sigs).sort().forEach(function(k){
-	    var ch = sigs[k];
-	 	temporaryFlattenSignal(ch, res)
-	})
-}
 
-export function temporaryFlattenSignal(s, res) {
-	if (s.children) {
-		// hierachical interface
-		// add separator
-		res.push([s.name, {"name": "bit"}, []]);
-	    // add sub signals
-		temporaryFlattenSignals(s.children, res);
-	} else {
-		// simple signal
-		var tName;
-		if (s.type.width == 1)
-			tName = "bit";
-		else
-			tName = "bits";
-		res.push([s.name, {"name": tName, "width": s.type.width}, s.data]);
-	}
-}
+

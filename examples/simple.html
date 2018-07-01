@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <link rel="stylesheet" type="text/css" href="../src/style.css">
+  <script type="text/javascript" src="../node_modules/d3/dist/d3.js"></script>
+  <script type="text/javascript" src="../dist/d3-wave.js"></script>
+  <style type="text/css">
+  #wave-graph {
+  	height: 80%;
+  	top: 80px;
+  };
+  </style>
+
+</head>
+<body>
+	<svg id="wave-graph"></svg>
+
+	<input type="file" id="file-input" />
+	<pre id="file-content"></pre>
+	
+	<script type="text/javascript">
+	var svg = d3.select("#wave-graph");
+	
+	var waveGraph = new d3.WaveGraph(svg);
+
+	function draw(signalData) {
+		var signalRows = [];
+		waveGraph.temporaryFlattenSignals(signalData, signalRows)
+	    waveGraph.bindData(signalRows);
+	    waveGraph.draw();
+	}
+
+	function resize() {
+	    waveGraph.setSizes()
+	    waveGraph.draw()
+	}
+	d3.select(window).on("resize", resize);
+
+	</script>
+	<script>
+    // file open handler
+    function readSingleFile(e) {
+  	  var file = e.target.files[0];
+  	  if (!file) {
+  	    return;
+  	  }
+  	  var reader = new FileReader();
+  	  reader.onload = function(e) {
+  	    var contents = e.target.result;
+  	    displayContents(contents);
+  	  };
+  	  reader.readAsText(file);
+  	}
+    
+  	function displayContents(contents) {
+  	  var element = document.getElementById('file-content');
+  	  element.textContent = contents;
+  	  draw(JSON.parse(contents));
+  	}
+    
+  	document.getElementById('file-input')
+  	  .addEventListener('change', readSingleFile, false);
+    </script>
+</body>
