@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "init": "eslint --init",
-    "build": "rm -rf dist && mkdir dist && rollup -c --banner \"$(preamble)\"",
+    "build": "rm -rf dist && mkdir dist && NODE_ENV=production rollup -c --banner \"$(preamble)\"",
     "clean": "rm -rf dist/ node_modules/",
     "prepare": "npm run build",
     "pretest": "npm run build",
-    "test": "jest",
+    "test": "NODE_ENV=development jest",
     "coverage": "jest --coverage",
     "coveralls": "jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
     "lint": "eslint src test --ignore-pattern tests/coverage*"
@@ -47,6 +47,11 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.9.1",
+    "babel-preset-flow": "latest",
+    "babel-preset-es2015": "latest",
+    "babel-preset-stage-0": "latest",
     "jest": "latest",
     "package-preamble": "0.1",
     "rollup": "0.52"

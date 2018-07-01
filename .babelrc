@@ -1,10 +1,24 @@
 {
-  "presets": [
-    ["env", {
-      "targets": {
-        "node": "current"
-      }
-    }]
+  "ignore": [
+    "node_modules/**"
   ],
-  "plugins": ["transform-object-rest-spread"]
+  "env": {
+    "development": {
+      "presets": [
+        "flow",
+        "es2015",
+        "stage-0"
+      ]
+    },
+    "production": {
+      "presets": [
+        "flow", 
+        ["es2015", { "modules": false }],
+        "stage-0"
+      ],
+      "plugins": [
+        "external-helpers"
+      ]
+    }
+  }
 }
