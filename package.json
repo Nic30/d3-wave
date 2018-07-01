@@ -1,8 +1,8 @@
 {
   "name": "d3-wave",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "D3.js signal wave visualizer",
-  "main": "index.js",
+  "main": "dist/d3-wave.js",
   "scripts": {
     "init": "eslint --init",
     "build": "rm -rf dist && mkdir dist && NODE_ENV=production rollup -c",
