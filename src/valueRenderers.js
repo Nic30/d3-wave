@@ -18,7 +18,7 @@ export function renderBitLine(parent, data, signalWidth, waveRowHeight, waveRowY
 		}
 	})
 	
-    console.log("data", data)
+    //console.log("data", data)
     //console.log("linePoints", linePoints)
     //console.log("invalidRanges", invalidRanges)
     var line = d3.line()
