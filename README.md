@@ -6,6 +6,8 @@ D3.js based wave (signal) visualizer
 This library renders signal dumps into specified svg. (GTKWave for javascript)
 
 
+![scroll_and_zoom.gif](doc/scroll_and_zoom.gif)
+
 Use `npm install d3-wave --save` to install this library and save it to your package.json file.
 
 ## Features
