@@ -2,33 +2,45 @@ import * as d3 from "d3";
 import {renderWaveRow } from "./valueRenderers";
 // zoom+drag https://bl.ocks.org/mbostock/6123708
 
-export default function WaveGraph(svg) {
-    var g = svg.append("g");
-    this.g = g;
-    this.xaxisScale = null;
-    this.yaxisScale = null;
-    this.yaxisG = null;
-    this.xaxisG = null;
-    this.waveRowX = null;
-    this.verticalHelpLine = null;
-    this.sizes = {
-        row : {
-            range : [ 0, 200 ],
-            height : 20,
-            ypadding : 5,
-        },
-        margin : {
-            top : 20,
-            right : 20,
-            bottom : 20,
-            left : 180
-        },
-        width : -1,
-        height : -1
-    };
-    this.data = [];
-    
-    this.setSizes = function () {
+export default class WaveGraph {
+    constructor(svg) {
+    	this.svg = svg;
+        this.g = svg.append("g");
+        this.xaxisScale = null;
+        this.yaxisScale = null;
+        this.yaxisG = null;
+        this.xaxisG = null;
+        this.waveRowX = null;
+        this.verticalHelpLine = null;
+        this.sizes = {
+            row : {
+                range : [ 0, 200 ],
+                height : 20,
+                ypadding : 5,
+            },
+            margin : {
+                top : 20,
+                right : 20,
+                bottom : 20,
+                left : 180
+            },
+            width : -1,
+            height : -1
+        };
+        this.data = [];
+        
+        var margin = this.sizes.margin;
+        var maxT = 500;
+        var zoom = d3.zoom()
+            .scaleExtent([0, 40])
+            .translateExtent([[0, 0], [maxT, 0]])
+            .extent([[0, 0], [maxT, 0]])
+            .on("zoom", this.zoomed.bind(this));
+        svg.call(zoom)
+    }
+
+    setSizes() {
+        var svg = this.svg;
         var s = this.sizes;
         s.width = (parseInt(svg.style('width'))
                    - s.margin.left
@@ -36,40 +48,40 @@ export default function WaveGraph(svg) {
         s.height = (parseInt(svg.style("height"))
                     - s.margin.top
                     - s.margin.bottom);
-        g.attr("transform",
-                "translate(" + s.margin.left + "," + s.margin.top + ")");
+        this.g.attr("transform",
+                    "translate(" + s.margin.left + "," + s.margin.top + ")");
     }
 
-    this.drawYHelpLine = function () {
+    drawYHelpLine() {
         var height = this.sizes.height;
         var vhl = this.verticalHelpLine
         var graph = this;
         if (vhl) {
-        	vhl.attr('y2', height)
+            vhl.attr('y2', height)
         } else {
-        	this.verticalHelpLine = g.append('line')
-        	.attr('class', 'vertical-help-line')
-        	.attr('x1', 0)
-        	.attr('y1', 0)
-        	.attr('x2', 0)
-        	.attr('y2', height);
-        	
-        	function moveVerticalHelpLine() {
-        		var xPos = d3.mouse(this)[0] - graph.sizes.margin.left;
-        		if (xPos < 0)
-        			xPos = 0;
-        		d3.select(".vertical-help-line")
-        		.attr("transform", function () {
-        			return "translate(" + xPos + ",0)";
-        		})
-        		.attr("y2", graph.sizes.height);
-        	}
-        	
-        	svg.on('mousemove', moveVerticalHelpLine);
+            this.verticalHelpLine = this.g.append('line')
+            .attr('class', 'vertical-help-line')
+            .attr('x1', 0)
+            .attr('y1', 0)
+            .attr('x2', 0)
+            .attr('y2', height);
+            
+            function moveVerticalHelpLine() {
+                var xPos = d3.mouse(this)[0] - graph.sizes.margin.left;
+                if (xPos < 0)
+                    xPos = 0;
+                d3.select(".vertical-help-line")
+                .attr("transform", function () {
+                    return "translate(" + xPos + ",0)";
+                })
+                .attr("y2", graph.sizes.height);
+            }
+            
+            svg.on('mousemove', moveVerticalHelpLine);
         }
     }
 
-    this.drawGridLines = function () {
+    drawGridLines() {
         // simple graph with grid lines in v4
         // https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
         var height = this.sizes.height;
@@ -95,7 +107,7 @@ export default function WaveGraph(svg) {
         gridLines.exit().remove();
     }
     
-    this.drawXAxis = function () {
+    drawXAxis() {
         var sizes = this.sizes;
         var xaxisScale = d3.scaleLinear()
                            .domain(sizes.row.range)
@@ -120,7 +132,7 @@ export default function WaveGraph(svg) {
         }
     }
     
-    this.draw = function () {
+    draw() {
         this.setSizes();
 
         var sizes = this.sizes;
@@ -159,64 +171,52 @@ export default function WaveGraph(svg) {
         // y axis
         if (this.yaxisG)
             this.yaxisG.remove()
-        this.yaxisG = g.append("g")
+        this.yaxisG = this.g.append("g")
                   .attr("class", "axis axis-y")
                   .call(d3.axisLeft(yaxisScale))
     }
 
-    this.bindData = function(signalData) {
+    bindData(signalData) {
         this.data = signalData;
     }
-    var graph = this
-    var defaultSize = graph.sizes.row.range;
 
-    function zoomed() {
+    zoomed() {
+        var defaultSize = this.sizes.row.range;
         var t = d3.event.transform;
-        var width = graph.sizes.width
+        var width = this.sizes.width
         var intervalRange = defaultSize[1] - defaultSize[0];
         var newRange = defaultSize.map(function (x) {
             return (x  - (t.x / width * intervalRange)) / t.k
         })
         if (newRange[0] < 0)
             newRange[0] = 0
-        graph.sizes.row.range = newRange; 
-        graph.draw()
+        this.sizes.row.range = newRange; 
+        this.draw()
      }
-
-    var margin = this.sizes.margin;
-    var maxT = 500;
-    var zoom = d3.zoom()
-        .scaleExtent([0, 40])
-        .translateExtent([[0, 0], [maxT, 0]])
-        .extent([[0, 0], [maxT, 0]])
-        .on("zoom", zoomed);
-    svg.call(zoom)
     
-    graph.temporaryFlattenSignal = function (s, res) {
-		if (s.children) {
-			// hierachical interface
-			// add separator
-			res.push([s.name, {"name": "bit"}, []]);
-		    // add sub signals
-			graph.temporaryFlattenSignals(s.children, res);
-		} else {
-			// simple signal
-			var tName;
-			if (s.type.width == 1)
-				tName = "bit";
-			else
-				tName = "bits";
-			res.push([s.name, {"name": tName, "width": s.type.width}, s.data]);
-		}
+    static temporaryFlattenSignal(s, res) {
+        if (s.children) {
+            // hierachical interface
+            // add separator
+            res.push([s.name, {"name": "bit"}, []]);
+            // add sub signals
+            WaveGraph.temporaryFlattenSignals(s.children, res);
+        } else {
+            // simple signal
+            var tName;
+            if (s.type.width == 1)
+                tName = "bit";
+            else
+                tName = "bits";
+            res.push([s.name, {"name": tName, "width": s.type.width}, s.data]);
+        }
     }
-    graph.temporaryFlattenSignals = function(sigs, res) {
-    	keysOfDict(sigs).sort().forEach(function(k){
-    	    var ch = sigs[k];
-    	 	graph.temporaryFlattenSignal(ch, res)
-    	})
+    static temporaryFlattenSignals(sigs, res) {
+        keysOfDict(sigs).sort().forEach(function(k){
+            var ch = sigs[k];
+            WaveGraph.temporaryFlattenSignal(ch, res)
+        })
     }
-    
-    return graph;
 }
 
 function keysOfDict(obj) {

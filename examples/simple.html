@@ -24,7 +24,7 @@
 
 	function draw(signalData) {
 		var signalRows = [];
-		waveGraph.temporaryFlattenSignals(signalData, signalRows)
+		d3.WaveGraph.temporaryFlattenSignals(signalData, signalRows)
 	    waveGraph.bindData(signalRows);
 	    waveGraph.draw();
 	}
