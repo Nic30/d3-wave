@@ -35,7 +35,6 @@
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
     "d3": "latest",
-    "webworker-threads": "latest"
   },
   "devDependencies": {
     "coveralls": "latest",
