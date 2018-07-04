@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
-    "d3": "latest",
+    "d3": "latest"
   },
   "devDependencies": {
     "coveralls": "latest",
