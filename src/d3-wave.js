@@ -4,7 +4,7 @@ import {renderWaveRow } from "./valueRenderers";
 
 export default class WaveGraph {
     constructor(svg) {
-    	this.svg = svg;
+        this.svg = svg;
         this.g = svg.append("g");
         this.xaxisScale = null;
         this.yaxisScale = null;
@@ -12,9 +12,11 @@ export default class WaveGraph {
         this.xaxisG = null;
         this.waveRowX = null;
         this.verticalHelpLine = null;
+        var maxT = 500;
+        this.ROW_RANGE_REFERENCE = [0, maxT];
         this.sizes = {
             row : {
-                range : [ 0, 200 ],
+                range : [ 0, maxT],
                 height : 20,
                 ypadding : 5,
             },
@@ -30,13 +32,13 @@ export default class WaveGraph {
         this.data = [];
         
         var margin = this.sizes.margin;
-        var maxT = 500;
         var zoom = d3.zoom()
+            .extent([[0, 0], [maxT, 0]]) // initial position
             .scaleExtent([0, 40])
             .translateExtent([[0, 0], [maxT, 0]])
-            .extent([[0, 0], [maxT, 0]])
             .on("zoom", this.zoomed.bind(this));
-        svg.call(zoom)
+        svg.call(zoom);
+        this.setSizes();
     }
 
     setSizes() {
@@ -128,7 +130,7 @@ export default class WaveGraph {
             this.xaxisG = this.g.append("g")
                           .attr("class", "axis axis-x")
                           .attr("transform", "translate(0,0)")
-                          .call(xaxis)
+                          .call(xaxis);
         }
     }
     
@@ -148,32 +150,46 @@ export default class WaveGraph {
                               .data(graph.data)
         
         function renderWaveRows(selection) {
-            selection.each(function(d, i) {
-               renderWaveRow(i, d[1], d[2], graph, d3.select(this))
+            selection.each(function(d) {
+               //var name = d[0];
+               var type = d[1];
+               var data = d[2];
+               if (data.length)
+                   return renderWaveRow(type, data,
+                                        graph, d3.select(this));
             });
         }
                               
+        var ROW_Y = sizes.row.height + sizes.row.ypadding;
         valueRows.enter()
                  .append("g")
                  .attr("class", "value-row")
                  .merge(valueRows)
                  .call(renderWaveRows)
+                 .attr("transform", (d, i) => 'translate(' + 0 + ',' + (i*ROW_Y) + ')')
 
         // drawWaveLabels
-        var signalNames = signalData.map(function(d) {
-            return d[0]
+        var signalNames = signalData.map(function(d, i) {
+            return d[0];
         })
-        var namesHeight = signalData.length * (sizes.row.height + sizes.row.ypadding);
+        
+        var namesHeight = (signalNames.length ) * (ROW_Y);
         var yaxisScale = d3.scaleBand()
-                           .rangeRound([0, namesHeight])
-                           .domain(signalNames)
+                           .domain(d3.range(signalNames.length))
+                           .range([0, namesHeight])
+                           //.paddingInner(0)
+                           //.paddingOuter(0);
         this.yaxisScale = yaxisScale;
         // y axis
         if (this.yaxisG)
-            this.yaxisG.remove()
+            this.yaxisG.remove();
+        var labelsPossitions = d3.range(0, namesHeight, sizes.row.height);
+        console.log(labelsPossitions, signalNames);
         this.yaxisG = this.g.append("g")
                   .attr("class", "axis axis-y")
-                  .call(d3.axisLeft(yaxisScale))
+                  .call(d3.axisLeft(yaxisScale)
+                          .tickFormat((i) => signalNames[i])
+                   );
     }
 
     bindData(signalData) {
@@ -181,16 +197,20 @@ export default class WaveGraph {
     }
 
     zoomed() {
-        var defaultSize = this.sizes.row.range;
+        var range = this.ROW_RANGE_REFERENCE;
         var t = d3.event.transform;
         var width = this.sizes.width
-        var intervalRange = defaultSize[1] - defaultSize[0];
-        var newRange = defaultSize.map(function (x) {
-            return (x  - (t.x / width * intervalRange)) / t.k
-        })
-        if (newRange[0] < 0)
-            newRange[0] = 0
-        this.sizes.row.range = newRange; 
+        var intervalRange = range[1] - range[0];
+        var begin = -t.x;
+        if (begin < 0)
+            begin = 0;
+        var end = begin + intervalRange*t.k;
+        if (end < 1)
+            end = 1
+        this.sizes.row.range = [begin, end]; 
+        console.log(t);
+        console.log(this.sizes.row.range);
+        
         this.draw()
      }
     
