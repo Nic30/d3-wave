@@ -56,8 +56,10 @@ export default class WaveGraph {
 
     drawYHelpLine() {
         var height = this.sizes.height;
-        var vhl = this.verticalHelpLine
+        var vhl = this.verticalHelpLine;
+        var svg = this.svg;
         var graph = this;
+
         if (vhl) {
             vhl.attr('y2', height)
         } else {
@@ -184,7 +186,6 @@ export default class WaveGraph {
         if (this.yaxisG)
             this.yaxisG.remove();
         var labelsPossitions = d3.range(0, namesHeight, sizes.row.height);
-        console.log(labelsPossitions, signalNames);
         this.yaxisG = this.g.append("g")
                   .attr("class", "axis axis-y")
                   .call(d3.axisLeft(yaxisScale)
@@ -208,8 +209,6 @@ export default class WaveGraph {
         if (end < 1)
             end = 1
         this.sizes.row.range = [begin, end]; 
-        console.log(t);
-        console.log(this.sizes.row.range);
         
         this.draw()
      }

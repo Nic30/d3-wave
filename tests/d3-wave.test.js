@@ -28,19 +28,21 @@ describe('{unit}: Testing wave rendering of example', () => {
       var wave = new WaveGraph(svg);
       var signalData = JSON.parse(fs.readFileSync('examples/wave0.json', 'utf8'));
       var signalRows = [];
-      wave.temporaryFlattenSignals(signalData, signalRows)
+      WaveGraph.temporaryFlattenSignals(signalData, signalRows);
+      
+      
+      it("signal data correctly flattened", function() {
+          expect(signalRows.length).toBe(36);
+      });
       wave.bindData(signalRows);
       wave.draw();
 
       it("SVG has correct count of series", function() {
           var v = svg.selectAll(".value-row");
-          expect(v.size()).toBe(36);
+          expect(v.size()).toBe(signalRows.length);
       });
       it("SVG has correct count of series labels", function() {
           var t =  d3.selectAll(".axis-y").selectAll("text");
-          expect(v.size()).toBe(28);
+          expect(t.size()).toBe(signalRows.length);
       });
-      
-     .
-      
 });
