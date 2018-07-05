@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import WaveGraph from '../src/d3-wave';
 import * as fs from 'fs';
 
-describe('{unit}: Testing wave rendering basics', () => {
+describe('Testing wave rendering basics', () => {
   var svg = d3.select("body")
               .append("svg");
 
@@ -18,12 +18,12 @@ describe('{unit}: Testing wave rendering basics', () => {
 });
 
 
-describe('{unit}: Testing wave rendering of example', () => {
+describe('Testing wave rendering of example', () => {
       var svg = d3.select("body")
                   .append("svg");
 
       svg.attr("width", 500)
-        .attr("height", 500);  
+         .attr("height", 500);  
 
       var wave = new WaveGraph(svg);
       var signalData = JSON.parse(fs.readFileSync('examples/wave0.json', 'utf8'));
