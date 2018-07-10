@@ -31,11 +31,10 @@ export default class WaveGraph {
         };
         this.data = [];
         
-        var margin = this.sizes.margin;
         var zoom = d3.zoom()
             .extent([[0, 0], [maxT, 0]]) // initial position
-            .scaleExtent([0, 40])
-            .translateExtent([[0, 0], [maxT, 0]])
+            .scaleExtent([1, 10])
+            .translateExtent([[-maxT, 0], [maxT, 0]])
             .on("zoom", this.zoomed.bind(this));
         svg.call(zoom);
         this.setSizes();
@@ -209,7 +208,7 @@ export default class WaveGraph {
         if (end < 1)
             end = 1
         this.sizes.row.range = [begin, end]; 
-        
+        console.log(t, this.sizes.row.range);
         this.draw()
      }
     
