@@ -27,7 +27,9 @@
     "GTKWave"
   ],
   "author": "Michal Orsak",
-  "contributors": ["Nic30"],
+  "contributors": [
+    "Nic30"
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Nic30/d3-wave/issues"
