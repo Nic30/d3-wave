@@ -2,7 +2,9 @@ import * as d3 from "d3";
 import {renderWaveRow } from "./valueRenderers";
 // zoom+drag https://bl.ocks.org/mbostock/6123708
 
+// main class which represents the visualizer
 export default class WaveGraph {
+
     constructor(svg) {
         this.svg = svg;
         this.g = svg.append("g");
@@ -30,7 +32,7 @@ export default class WaveGraph {
             height : -1
         };
         this.data = [];
-        
+        this.draggedElem = null;
         var zoom = d3.zoom()
             .extent([[0, 0], [maxT, 0]]) // initial position
             .scaleExtent([1, 10])
@@ -40,6 +42,9 @@ export default class WaveGraph {
         this.setSizes();
     }
 
+    /*
+     * extract width/height from svg and apply margin to main "g"
+     */
     setSizes() {
         var svg = this.svg;
         var s = this.sizes;
@@ -62,6 +67,7 @@ export default class WaveGraph {
         if (vhl) {
             vhl.attr('y2', height)
         } else {
+            // construct new help line
             this.verticalHelpLine = this.g.append('line')
             .attr('class', 'vertical-help-line')
             .attr('x1', 0)
@@ -124,9 +130,11 @@ export default class WaveGraph {
         // http://bl.ocks.org/nnattawat/9054068
         var xaxisG = this.xaxisG
         if (xaxisG) {
+            // update xaxisG
             var xaxis = this.xaxis;
             xaxisG.call(xaxis.scale(xaxisScale))
         } else { 
+            // create xaxisG
             var xaxis = this.xaxis = d3.axisTop(xaxisScale)
             this.xaxisG = this.g.append("g")
                           .attr("class", "axis axis-x")
@@ -135,6 +143,7 @@ export default class WaveGraph {
         }
     }
     
+    // draw whole graph
     draw() {
         this.setSizes();
 
@@ -147,6 +156,10 @@ export default class WaveGraph {
         this.drawYHelpLine();
 
         // drawWaves
+        // remove previusly rendered row data
+        this.g.selectAll(".value-row")
+              .remove();
+
         var valueRows = this.g.selectAll(".value-row")
                               .data(graph.data)
         
@@ -174,7 +187,7 @@ export default class WaveGraph {
             return d[0];
         })
         
-        var namesHeight = (signalNames.length ) * (ROW_Y);
+        var namesHeight = signalNames.length * ROW_Y;
         var yaxisScale = d3.scaleBand()
                            .domain(d3.range(signalNames.length))
                            .range([0, namesHeight])
@@ -190,6 +203,42 @@ export default class WaveGraph {
                   .call(d3.axisLeft(yaxisScale)
                           .tickFormat((i) => signalNames[i])
                    );
+        // signal labels dragging, reordering
+        function dragstarted(d) {
+            var el = d3.select(this);
+            el.raise().classed("tick-selected", true);
+        }
+        function dragged(d) {
+            var el = d3.select(this)
+            el.attr("transform", 'translate(' + 0 + ',' + d3.event.y + ')')
+        }
+        function dragended(old_index) {
+            d3.select(this).classed("tick-selected", false);
+            var y = this.transform.baseVal.consolidate().matrix.f;
+            var new_index = Math.round((y / namesHeight) * signalNames.length);
+            if (old_index != new_index) {
+                var d = signalData[old_index];
+                signalData.splice(old_index, 1);
+                if (old_index > new_index) {
+                    signalData.splice(new_index, 0, d);
+                } else if (new_index > old_index) {
+                    signalData.splice(new_index-1, 0, d);
+                }
+                graph.draw();
+            }
+        }
+        
+        var yticks = this.yaxisG.selectAll(".tick");
+        yticks.call(d3.drag()
+                  .on("start", dragstarted)
+                  .on("drag", dragged)
+                  .on("end", dragended)
+              )
+              .append("rect")
+              .attr("width",  sizes.margin.left)
+              .attr("height", ROW_Y)
+              .attr("x", -sizes.margin.left)
+              .attr("y", -ROW_Y * 0.5);
     }
 
     bindData(signalData) {
@@ -207,8 +256,7 @@ export default class WaveGraph {
         var end = begin + intervalRange*t.k;
         if (end < 1)
             end = 1
-        this.sizes.row.range = [begin, end]; 
-        console.log(t, this.sizes.row.range);
+        this.sizes.row.range = [begin, end];
         this.draw()
      }
     
