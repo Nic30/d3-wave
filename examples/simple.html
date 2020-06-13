@@ -57,6 +57,9 @@
     
   	document.getElementById('file-input')
   	  .addEventListener('change', readSingleFile, false);
+
+  	d3.json("wave0.json")
+  	   .then(draw);
     </script>
 </body>
 </html>
