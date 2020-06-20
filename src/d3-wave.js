@@ -40,11 +40,32 @@ export default class WaveGraph {
             .on("zoom", this.zoomed.bind(this));
         svg.call(zoom);
         this.setSizes();
+        this.registerKeys();
     }
 
+    registerKeys() {
+        var graph = this;
+        
+    	this.svg.on("mouseover", function(d,i) {
+    		    d3.select(window).on('keypress', function () {
+    	        	console.log("keypress")
+    	            var tagName = d3.select(d3.event.target).node().tagName;
+    	            if (tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA') {
+    	                return;
+    	            }
+    	            if (d3.event.key == "Delete"){
+    	            	console.log("del")
+    	            	graph.data = graph.data.filter(function (d){
+    	            		return !d[1].selected;
+    	            	})
+    	            	graph.draw();
+    	            }
+    	        });
+    	 });
+    }
     /*
-     * extract width/height from svg and apply margin to main "g"
-     */
+	 * extract width/height from svg and apply margin to main "g"
+	 */
     setSizes() {
         var svg = this.svg;
         var s = this.sizes;
@@ -165,7 +186,7 @@ export default class WaveGraph {
         
         function renderWaveRows(selection) {
             selection.each(function(d) {
-               //var name = d[0];
+               // var name = d[0];
                var type = d[1];
                var data = d[2];
                if (data.length)
@@ -191,22 +212,55 @@ export default class WaveGraph {
         var yaxisScale = d3.scaleBand()
                            .domain(d3.range(signalNames.length))
                            .range([0, namesHeight])
-                           //.paddingInner(0)
-                           //.paddingOuter(0);
+                           // .paddingInner(0)
+                           // .paddingOuter(0);
         this.yaxisScale = yaxisScale;
         // y axis
         if (this.yaxisG)
             this.yaxisG.remove();
         var labelsPossitions = d3.range(0, namesHeight, sizes.row.height);
         this.yaxisG = this.g.append("g")
-                  .attr("class", "axis axis-y")
-                  .call(d3.axisLeft(yaxisScale)
-                          .tickFormat((i) => signalNames[i])
-                   );
+            .classed("axis axis-y", true)
+            .call(d3.axisLeft(yaxisScale)
+                    .tickFormat((i) => signalNames[i])
+            )
+        var yaxisLabes = this.yaxisG.selectAll('g') 
+        yaxisLabes.classed("tick-selected", function(d){
+        	           return signalData[d][1].selected;
+                   });
+        // select and deselect all "g"
         // signal labels dragging, reordering
         function dragstarted(d) {
+        	// d = index of clicked signal
             var el = d3.select(this);
-            el.raise().classed("tick-selected", true);
+            var selectedFirstIndex = null;
+
+            if (d3.event.shiftKey || d3.event.sourceEvent.shiftKey){
+                //searching for first isseleted (signaldata)
+                for (var i = 0; i < signalData.length; i++) {
+                	var isselected = signalData[i][1].selected
+            	    if (isselected){
+            		   selectedFirstIndex = i;
+            		   break;
+                    }
+                }
+            }
+            if (selectedFirstIndex == null){
+                // toggle selection  
+                var isselected = signalData[d][1].selected = !signalData[d][1].selected;
+                el.raise().classed("tick-selected", isselected);
+            } else {
+            	// select all between last selected and clicked
+            	// selectedFirstIndex(d)
+            	// deselect all
+            	for (var i = 0; i < signalData.length; i++) { 
+            		if (selectedFirstIndex < d){
+            	        signalData[i][1].selected = selectedFirstIndex <= i && i <= d;
+            		} else {
+            			signalData[i][1].selected = selectedFirstIndex >= i && i >= d;
+            		}
+            	}
+            }
         }
         function dragged(d) {
             var el = d3.select(this)
@@ -230,9 +284,9 @@ export default class WaveGraph {
         
         var yticks = this.yaxisG.selectAll(".tick");
         yticks.call(d3.drag()
-                  .on("start", dragstarted)
-                  .on("drag", dragged)
-                  .on("end", dragended)
+                      .on("start", dragstarted)
+                      .on("drag", dragged)
+                      .on("end", dragended)
               )
               .append("rect")
               .attr("width",  sizes.margin.left)
