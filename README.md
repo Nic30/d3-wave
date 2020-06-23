@@ -9,6 +9,15 @@ This library renders signal dumps into specified svg. (GTKWave for javascript)
 ![scroll_and_zoom.gif](doc/scroll_and_zoom.gif)
 
 Use `npm install d3-wave --save` to install this library and save it to your package.json file.
+Installation from git for developers:
+```
+npm install            # normal dependencies
+npm install --only=dev # developement only dedpendencies
+npm run-script build   # build dist js
+npm test               # run tests
+
+python -m http.server  # run http server in root directory in order to open the examples in ./examples directory
+```
 
 ## Features
 
