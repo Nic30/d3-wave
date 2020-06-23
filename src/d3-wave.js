@@ -1,6 +1,8 @@
 import * as d3 from "d3";
-import {renderWaveRow } from "./valueRenderers";
-// zoom+drag https://bl.ocks.org/mbostock/6123708
+import {filterData} from "./filterData.js";
+import {RowRendererBit} from "./rowRenderers/bit.js"
+import {RowRendererBits} from "./rowRenderers/bits.js"
+
 
 export default class WaveGraph {
     constructor(svg) {
@@ -11,6 +13,7 @@ export default class WaveGraph {
         this.yaxisG = null;
         this.xaxisG = null;
         this.waveRowX = null;
+        this.waveRowY = null;
         this.verticalHelpLine = null;
         var maxT = 500;
         this.ROW_RANGE_REFERENCE = [0, maxT];
@@ -30,7 +33,11 @@ export default class WaveGraph {
             height : -1
         };
         this.data = [];
-        
+        // list of renderers for value rows
+        this.rowRenderers = [
+        	new RowRendererBit(this),
+        	new RowRendererBits(this)
+        ];
         var zoom = d3.zoom()
             .extent([[0, 0], [maxT, 0]]) // initial position
             .scaleExtent([1, 10])
@@ -145,19 +152,35 @@ export default class WaveGraph {
         this.drawXAxis();
         this.drawGridLines();
         this.drawYHelpLine();
-
+        this.waveRowY = d3.scaleLinear()
+	                      .domain([0, 1])
+	                      .range([0, sizes.row.height]);
         // drawWaves
         var valueRows = this.g.selectAll(".value-row")
                               .data(graph.data)
         
         function renderWaveRows(selection) {
+     	    // Select correct renderer function based on type of data series
             selection.each(function(d) {
                //var name = d[0];
-               var type = d[1];
+               var signalType = d[1];
                var data = d[2];
-               if (data.length)
-                   return renderWaveRow(type, data,
-                                        graph, d3.select(this));
+               if (data.length) {
+            	   var parent = d3.select(this);
+            	   data = filterData(data, graph.sizes.row.range)
+            	   var rendererFound = false;
+            	   for (var i = 0; i < graph.rowRenderers.length; i++) {
+			           var renderer = graph.rowRenderers[i];
+			           if (renderer.select(signalType)) {
+				           	renderer.render(parent, data, signalType);
+				           	rendererFound = true;
+				           	break;
+			           }
+            	   }
+            	   if (!rendererFound) {
+            		   throw new Error("None of installed renderers supports signalType:" + signalType);
+            	   }
+               }
             });
         }
                               
@@ -246,6 +269,3 @@ function keysOfDict(obj) {
 
     return keys;
 }
-
-
-
