@@ -27,7 +27,9 @@
     "GTKWave"
   ],
   "author": "Michal Orsak",
-  "contributors": ["Nic30"],
+  "contributors": [
+    "Nic30"
+  ],
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Nic30/d3-wave/issues"
@@ -37,21 +39,20 @@
     "d3": "latest"
   },
   "devDependencies": {
+    "@babel/preset-env": "latest",
+    "@babel/preset-flow": "latest",
     "coveralls": "latest",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "latest",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-standard": "^3.1.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.9.1",
-    "babel-preset-flow": "latest",
-    "babel-preset-env": "latest",
-    "babel-preset-stage-0": "latest",
+    "eslint-plugin-standard": "^3.1.0",
     "jest": "latest",
-    "rollup": "0.52"
+    "rollup": "latest"
   },
   "jest": {
     "coverageDirectory": "<rootDir>/tests/coverage",
