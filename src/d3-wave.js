@@ -4,7 +4,9 @@ import {RowRendererBit} from "./rowRenderers/bit.js"
 import {RowRendererBits} from "./rowRenderers/bits.js"
 
 
+// main class which represents the visualizer
 export default class WaveGraph {
+
     constructor(svg) {
         this.svg = svg;
         this.g = svg.append("g");
@@ -38,6 +40,7 @@ export default class WaveGraph {
         	new RowRendererBit(this),
         	new RowRendererBits(this)
         ];
+        this.draggedElem = null;
         var zoom = d3.zoom()
             .extent([[0, 0], [maxT, 0]]) // initial position
             .scaleExtent([1, 10])
@@ -45,8 +48,32 @@ export default class WaveGraph {
             .on("zoom", this.zoomed.bind(this));
         svg.call(zoom);
         this.setSizes();
+        this.registerKeys();
     }
 
+    registerKeys() {
+        var graph = this;
+        
+    	this.svg.on("mouseover", function(d,i) {
+    		    d3.select(window).on('keypress', function () {
+    	        	console.log("keypress")
+    	            var tagName = d3.select(d3.event.target).node().tagName;
+    	            if (tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA') {
+    	                return;
+    	            }
+    	            if (d3.event.key == "Delete"){
+    	            	console.log("del")
+    	            	graph.data = graph.data.filter(function (d){
+    	            		return !d[1].selected;
+    	            	})
+    	            	graph.draw();
+    	            }
+    	        });
+    	 });
+    }
+    /*
+	 * extract width/height from svg and apply margin to main "g"
+	 */
     setSizes() {
         var svg = this.svg;
         var s = this.sizes;
@@ -69,6 +96,7 @@ export default class WaveGraph {
         if (vhl) {
             vhl.attr('y2', height)
         } else {
+            // construct new help line
             this.verticalHelpLine = this.g.append('line')
             .attr('class', 'vertical-help-line')
             .attr('x1', 0)
@@ -131,9 +159,11 @@ export default class WaveGraph {
         // http://bl.ocks.org/nnattawat/9054068
         var xaxisG = this.xaxisG
         if (xaxisG) {
+            // update xaxisG
             var xaxis = this.xaxis;
             xaxisG.call(xaxis.scale(xaxisScale))
         } else { 
+            // create xaxisG
             var xaxis = this.xaxis = d3.axisTop(xaxisScale)
             this.xaxisG = this.g.append("g")
                           .attr("class", "axis axis-x")
@@ -142,6 +172,7 @@ export default class WaveGraph {
         }
     }
     
+    // draw whole graph
     draw() {
         this.setSizes();
 
@@ -156,6 +187,10 @@ export default class WaveGraph {
 	                      .domain([0, 1])
 	                      .range([0, sizes.row.height]);
         // drawWaves
+        // remove previusly rendered row data
+        this.g.selectAll(".value-row")
+              .remove();
+
         var valueRows = this.g.selectAll(".value-row")
                               .data(graph.data)
         
@@ -197,22 +232,91 @@ export default class WaveGraph {
             return d[0];
         })
         
-        var namesHeight = (signalNames.length ) * (ROW_Y);
+        var namesHeight = signalNames.length * ROW_Y;
         var yaxisScale = d3.scaleBand()
                            .domain(d3.range(signalNames.length))
                            .range([0, namesHeight])
-                           //.paddingInner(0)
-                           //.paddingOuter(0);
+                           // .paddingInner(0)
+                           // .paddingOuter(0);
         this.yaxisScale = yaxisScale;
         // y axis
         if (this.yaxisG)
             this.yaxisG.remove();
         var labelsPossitions = d3.range(0, namesHeight, sizes.row.height);
         this.yaxisG = this.g.append("g")
-                  .attr("class", "axis axis-y")
-                  .call(d3.axisLeft(yaxisScale)
-                          .tickFormat((i) => signalNames[i])
-                   );
+            .classed("axis axis-y", true)
+            .call(d3.axisLeft(yaxisScale)
+                    .tickFormat((i) => signalNames[i])
+            )
+        var yaxisLabes = this.yaxisG.selectAll('g') 
+        yaxisLabes.classed("tick-selected", function(d){
+        	           return signalData[d][1].selected;
+                   });
+        // select and deselect all "g"
+        // signal labels dragging, reordering
+        function dragstarted(d) {
+        	// d = index of clicked signal
+            var el = d3.select(this);
+            var selectedFirstIndex = null;
+
+            if (d3.event.shiftKey || d3.event.sourceEvent.shiftKey){
+                //searching for first isseleted (signaldata)
+                for (var i = 0; i < signalData.length; i++) {
+                	var isselected = signalData[i][1].selected
+            	    if (isselected){
+            		   selectedFirstIndex = i;
+            		   break;
+                    }
+                }
+            }
+            if (selectedFirstIndex == null){
+                // toggle selection  
+                var isselected = signalData[d][1].selected = !signalData[d][1].selected;
+                el.raise().classed("tick-selected", isselected);
+            } else {
+            	// select all between last selected and clicked
+            	// selectedFirstIndex(d)
+            	// deselect all
+            	for (var i = 0; i < signalData.length; i++) { 
+            		if (selectedFirstIndex < d){
+            	        signalData[i][1].selected = selectedFirstIndex <= i && i <= d;
+            		} else {
+            			signalData[i][1].selected = selectedFirstIndex >= i && i >= d;
+            		}
+            	}
+            }
+        }
+        function dragged(d) {
+            var el = d3.select(this)
+            el.attr("transform", 'translate(' + 0 + ',' + d3.event.y + ')')
+        }
+        function dragended(old_index) {
+            d3.select(this).classed("tick-selected", false);
+            var y = this.transform.baseVal.consolidate().matrix.f;
+            var new_index = Math.round((y / namesHeight) * signalNames.length);
+            if (old_index != new_index) {
+                var d = signalData[old_index];
+                signalData.splice(old_index, 1);
+                if (old_index > new_index) {
+                    signalData.splice(new_index, 0, d);
+                } else if (new_index > old_index) {
+                    signalData.splice(new_index-1, 0, d);
+                }
+                graph.draw();
+            }
+        }
+        
+        var yticks = this.yaxisG.selectAll(".tick");
+        yticks.call(d3.drag()
+                      .on("start", dragstarted)
+                      .on("drag", dragged)
+                      .on("end", dragended)
+              )
+              .append("rect")
+              .attr("width",  sizes.margin.left)
+              .attr("height", ROW_Y)
+              .attr("x", -sizes.margin.left)
+              .attr("y", -ROW_Y * 0.5);
     }
 
     bindData(signalData) {
@@ -230,8 +334,7 @@ export default class WaveGraph {
         var end = begin + intervalRange*t.k;
         if (end < 1)
             end = 1
-        this.sizes.row.range = [begin, end]; 
-        console.log(t, this.sizes.row.range);
+        this.sizes.row.range = [begin, end];
         this.draw()
      }
     
