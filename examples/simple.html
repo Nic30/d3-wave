@@ -18,14 +18,12 @@
 	<svg id="wave-graph"></svg>
 	
 	<script type="text/javascript">
+	// script with instanciation of the graph
 	var svg = d3.select("#wave-graph");
-	
 	var waveGraph = new d3.WaveGraph(svg);
 
 	function draw(signalData) {
-		var signalRows = [];
-		d3.WaveGraph.temporaryFlattenSignals(signalData, signalRows)
-	    waveGraph.bindData(signalRows);
+	    waveGraph.bindData(signalData);
 	    waveGraph.draw();
 	}
 
@@ -46,20 +44,17 @@
   	  var reader = new FileReader();
   	  reader.onload = function(e) {
   	    var contents = e.target.result;
-  	    displayContents(contents);
+  	    draw(JSON.parse(contents));
   	  };
   	  reader.readAsText(file);
   	}
     
-  	function displayContents(contents) {
-  	  draw(JSON.parse(contents));
-  	}
-    
   	document.getElementById('file-input')
-  	  .addEventListener('change', readSingleFile, false);
+  	        .addEventListener('change', readSingleFile, false);
 
-  	d3.json("wave0.json")
-  	   .then(draw);
+  	// load some data by default so example is showing something out of the box
+  	d3.json("FifoTC_test_normalOp.json")
+  	  .then(draw);
     </script>
 </body>
 </html>

@@ -58,14 +58,14 @@ export function signalLabelManipulation(graph, yaxisG, namesHeight, signalNames,
         }
     }
     function dragged(d) {
-        var el = d3.select(this)
+        var el = d3.select(this);
         el.attr("transform", 'translate(' + 0 + ',' + d3.event.y + ')')
     }
     function dragended(old_index) {
-        d3.select(this)
-          .classed("tick-selected", false);
+        var el = d3.select(this);
+        el.classed("tick-selected", false);
         var y = this.transform.baseVal.consolidate().matrix.f;
-        var new_index = Math.round((y / namesHeight) * signalNames.length);
+        var new_index = Math.round(y / ROW_Y);
         if (old_index != new_index) {
             var d = signalData[old_index];
             signalData.splice(old_index, 1);
@@ -75,6 +75,8 @@ export function signalLabelManipulation(graph, yaxisG, namesHeight, signalNames,
                 signalData.splice(new_index-1, 0, d);
             }
             graph.draw();
+        } else {
+        	el.attr("transform", 'translate(0,' + (new_index * ROW_Y) + ')');
         }
     }
     

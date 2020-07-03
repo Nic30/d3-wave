@@ -1,8 +1,24 @@
+
+export function flattenSignals(sig, res) {
+	if (sig.type === undefined) {
+		return;
+	}
+	var t = sig.type.name;
+	if (t == "struct") {
+		sig.data.forEach(function(ch) {
+			flattenSignals(ch, res);
+	    });
+	} else {
+		res.push([sig.name, sig.type, sig.data]);
+	}
+}
+
+
 export function filterData(data, rowRange) {
     // return list ([time, value, duration])
      var min = rowRange[0];
      if (min < 0)
-         throw new Error("min time has to be > 0")
+         throw new Error("min time has to be >= 0")
      var max = rowRange[1];
      var _data = [];
 
@@ -17,7 +33,7 @@ export function filterData(data, rowRange) {
             if (_data.length == 0 && t != min) {
                 // first data, unaligned
                 if (!prev) {
-                    var prevVal = "x";
+                    var prevVal = "bX";
                 }  else {
                     var prevVal = prev[1];
                 }
@@ -37,7 +53,7 @@ export function filterData(data, rowRange) {
                 // selection range smaller than one data item
                 var prev = data[i - 1]
                 if (!prev) {
-                    var prevVal = "x";
+                    var prevVal = "bX";
                 }  else {
                     var prevVal = prev[1];
                 }
@@ -52,7 +68,7 @@ export function filterData(data, rowRange) {
         // no new data after selected range
         var last = data[data.length - 1]
         if (!last) {
-            var lastVal = "x";
+            var lastVal = "bX";
         }  else {
             var lastVal = last[1];
         }

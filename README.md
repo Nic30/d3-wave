@@ -27,21 +27,20 @@ python -m http.server  # run http server in root directory in order to open the 
 
 ## Input JSON format
 
-```
-scope
-{ "name": "<scope name>"
-  "children" : {"<children name>" : child}
-}
 
-child can be scope or signal record
-
-signal record 
+Signal record 
+```json
 { "name": "<signal name>"
-  "type": {"sigType": "<vcd signal type>",
+  "type": {"name": "<vcd signal type>",
            "width": <bit width of signal (integer)>},
   "data": [<data records>],
 }
-
-data record format
-[<time (number)>, <value (string, format dependent on datatype)>]
 ```
+
+Data record format
+```json
+["<time (number)>", "<value (string, format dependent on datatype)>"]
+```
+
+There is a special type with name "struct"
+Signal with this name has stored another signal records in it's data.

@@ -1,9 +1,27 @@
 import * as d3 from "d3";
-import {filterData} from "./filterData.js";
+import {filterData, flattenSignals} from "./filterData.js";
 import {RowRendererBit} from "./rowRenderers/bit.js"
-import {RowRendererBits} from "./rowRenderers/bits.js"
+import {RowRendererBits, SCALAR_FORMAT} from "./rowRenderers/bits.js"
 import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from "./signalLabelManipulation.js";
 
+const TIME_UNITS = [
+	[1, "ps"],
+	[1000, "ns"],
+	[1000000, "us"],
+	[1000000000, "ms"],
+	[1000000000000, "s"],
+];
+
+function create_time_formater(divider, unit_name) {
+	return function(d) {
+		var v = d / divider;
+		if (Number.isInteger(v)) {
+			return v + " " + unit_name;
+		} else {
+			return  v.toFixed(2) + " " + unit_name;
+		}
+	}
+}
 
 // main class which represents the visualizer
 export default class WaveGraph {
@@ -18,11 +36,13 @@ export default class WaveGraph {
         this.waveRowX = null;
         this.waveRowY = null;
         this.verticalHelpLine = null;
+        
+        // just some value, the real value are set in bindData()
         var maxT = 500;
-        this.ROW_RANGE_REFERENCE = [0, maxT];
+        this.xRange = [0, maxT];
         this.sizes = {
             row : {
-                range : [ 0, maxT],
+                range : [0, maxT],
                 height : 20,
                 ypadding : 5,
             },
@@ -42,28 +62,47 @@ export default class WaveGraph {
         	new RowRendererBits(this)
         ];
         this.draggedElem = null;
-        var zoom = d3.zoom()
-            .extent([[0, 0], [maxT, 0]]) // initial position
-            .scaleExtent([1, 10])
-            .translateExtent([[-maxT, 0], [maxT, 0]])
-            .on("zoom", this.zoomed.bind(this));
-        svg.call(zoom);
         this.setSizes();
         signalLabelManipulationRegisterHandlers(this);
     }
 
+    setZoom() {
+    	var t_range = this.xRange;
+    	var t_range_rev = [t_range[1], t_range[0]];
+        var zoom = d3.zoom()
+                     .extent([[0, 0], t_range_rev]) // initial position
+                     .scaleExtent([1, 10])
+                     .translateExtent([[-t_range[1], -t_range[0]], t_range_rev])
+                     .on("zoom", this.zoomed.bind(this));
+        this.svg.call(zoom);	
+    }
     /*
 	 * extract width/height from svg and apply margin to main "g"
 	 */
     setSizes() {
         var svg = this.svg;
         var s = this.sizes;
-        s.width = (parseInt(svg.style('width'))
+        var w = svg.style('width') || svg.attr("width");
+        w = parseInt(w);
+        if (!Number.isFinite(w)) {
+        	throw new Error("Can not resolve width of main SVG element");
+        }
+        var h = parseInt(svg.style("height") || svg.attr("height"));
+        if (!Number.isFinite(h)) {
+        	throw new Error("Can not resolve height of main SVG element");
+        }
+        s.width = (w
                    - s.margin.left
                    - s.margin.right);
-        s.height = (parseInt(svg.style("height"))
+        if (s.width <= 0) {
+         	throw new Error("Width too small for main SVG element " + s.width);
+        }
+        s.height = (h
                     - s.margin.top
                     - s.margin.bottom);
+        if (s.height <= 0) {
+         	throw new Error("Height too small for main SVG element " + s.height);
+        }
         this.g.attr("transform",
                     "translate(" + s.margin.left + "," + s.margin.top + ")");
     }
@@ -79,21 +118,21 @@ export default class WaveGraph {
         } else {
             // construct new help line
             this.verticalHelpLine = this.g.append('line')
-            .attr('class', 'vertical-help-line')
-            .attr('x1', 0)
-            .attr('y1', 0)
-            .attr('x2', 0)
-            .attr('y2', height);
-            
+                                          .attr('class', 'vertical-help-line')
+                                          .attr('x1', 0)
+                                          .attr('y1', 0)
+                                          .attr('x2', 0)
+                                          .attr('y2', height);
+
             function moveVerticalHelpLine() {
                 var xPos = d3.mouse(this)[0] - graph.sizes.margin.left;
                 if (xPos < 0)
                     xPos = 0;
                 d3.select(".vertical-help-line")
-                .attr("transform", function () {
-                    return "translate(" + xPos + ",0)";
-                })
-                .attr("y2", graph.sizes.height);
+                  .attr("transform", function () {
+                      return "translate(" + xPos + ",0)";
+                  })
+                  .attr("y2", graph.sizes.height);
             }
             
             svg.on('mousemove', moveVerticalHelpLine);
@@ -105,10 +144,9 @@ export default class WaveGraph {
         // https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
         var height = this.sizes.height;
         var xaxisScale = this.xaxisScale;
-        var xValues = xaxisScale.ticks(10)
-                                .map(function(d){
+        var xValues = xaxisScale.ticks(10).map(function(d) {
                                         return xaxisScale(d)
-                                })
+                                });
         // add the X gridlines
         var gridLines = this.g.selectAll(".grid-line-x")
                               .data(xValues);
@@ -130,7 +168,7 @@ export default class WaveGraph {
         var sizes = this.sizes;
         var xaxisScale = d3.scaleLinear()
                            .domain(sizes.row.range)
-                           .range([ 0, sizes.width]);
+                           .range([0, sizes.width]);
         this.xaxisScale = xaxisScale;
         this.waveRowX = xaxisScale;
         
@@ -143,9 +181,21 @@ export default class WaveGraph {
             // update xaxisG
             var xaxis = this.xaxis;
             xaxisG.call(xaxis.scale(xaxisScale))
-        } else { 
+        } else {
+        	// resolve which timeunit to use
+        	var time_range = this.xRange;
+        	time_range = time_range[1] - time_range[0];
+        	var time_unit = null;
+        	for (var i = 0; i < TIME_UNITS.length; i++) {
+        		var u = TIME_UNITS[i];
+        		if (time_range < 10 * u[0] || i == TIME_UNITS.length - 1) {
+        			time_unit = u;
+        			break;
+        		}
+        	}
             // create xaxisG
             var xaxis = this.xaxis = d3.axisTop(xaxisScale)
+                                       .tickFormat(create_time_formater(time_unit[0], time_unit[1]));
             this.xaxisG = this.g.append("g")
                           .attr("class", "axis axis-x")
                           .attr("transform", "translate(0,0)")
@@ -168,7 +218,7 @@ export default class WaveGraph {
 	                      .domain([0, 1])
 	                      .range([0, sizes.row.height]);
         // drawWaves
-        // remove previusly rendered row data
+        // remove previously rendered row data
         this.g.selectAll(".value-row")
               .remove();
 
@@ -188,7 +238,7 @@ export default class WaveGraph {
             	   for (var i = 0; i < graph.rowRenderers.length; i++) {
 			           var renderer = graph.rowRenderers[i];
 			           if (renderer.select(signalType)) {
-				           	renderer.render(parent, data, signalType);
+				           	renderer.render(parent, data, signalType, SCALAR_FORMAT.UINT_HEX);
 				           	rendererFound = true;
 				           	break;
 			           }
@@ -206,7 +256,7 @@ export default class WaveGraph {
                  .attr("class", "value-row")
                  .merge(valueRows)
                  .call(renderWaveRows)
-                 .attr("transform", (d, i) => 'translate(' + 0 + ',' + (i * ROW_Y) + ')')
+                 .attr("transform", (d, i) => 'translate(0,' + (i * ROW_Y) + ')')
 
         // drawWaveLabels
         var signalNames = signalData.map(function(d, i) {
@@ -226,59 +276,42 @@ export default class WaveGraph {
             .call(d3.axisLeft(yaxisScale)
                     .tickFormat((i) => signalNames[i])
             );
-       signalLabelManipulation(this, this.yaxisG, namesHeight, signalNames, sizes, ROW_Y);
+       signalLabelManipulation(
+    		   this, this.yaxisG, namesHeight,
+    		   signalNames, sizes, ROW_Y);
     }
 
-    bindData(signalData) {
+    bindData(_signalData) {
+    	if (_signalData.constructor !== Object) {
+    		throw new Error("Data in invalid format (should be dictionary and is " + _signalData + ")");
+    	}
+    	var signalData = [];
+    	flattenSignals(_signalData, signalData);
         this.data = signalData;
+        var maxT = 0;
+        for (var i = 0; i < signalData.length; i++) {
+        	var d = signalData[i];
+        	var last_time_in_data = d[2][d[2].length - 1][0];
+        	maxT = Math.max(maxT, last_time_in_data);
+        }
+        this.xRange[1] = this.sizes.row.range[1] = maxT;
+        this.setZoom()
     }
 
     zoomed() {
-        var range = this.ROW_RANGE_REFERENCE;
+        var range = this.xRange;
         var t = d3.event.transform;
-        var width = this.sizes.width
         var intervalRange = range[1] - range[0];
         var begin = -t.x;
-        if (begin < 0)
+        if (begin < 0) {
             begin = 0;
-        var end = begin + intervalRange*t.k;
-        if (end < 1)
-            end = 1
-        this.sizes.row.range = [begin, end];
-        this.draw()
-     }
-    
-    static temporaryFlattenSignal(s, res) {
-        if (s.children) {
-            // hierarchical interface
-            // add separator
-            res.push([s.name, {"name": "bit"}, []]);
-            // add sub signals
-            WaveGraph.temporaryFlattenSignals(s.children, res);
-        } else {
-            // simple signal
-            var tName;
-            if (s.type.width == 1)
-                tName = "bit";
-            else
-                tName = "bits";
-            res.push([s.name, {"name": tName, "width": s.type.width}, s.data]);
         }
-    }
-    static temporaryFlattenSignals(sigs, res) {
-        keysOfDict(sigs).sort().forEach(function(k){
-            var ch = sigs[k];
-            WaveGraph.temporaryFlattenSignal(ch, res)
-        })
-    }
-}
+        var end = begin + intervalRange*t.k;
+        if (end < 1) {
+            end = 1;
+        }
 
-function keysOfDict(obj) {
-    var keys = [];
-
-    for(var key in obj)
-        if(obj.hasOwnProperty(key))
-            keys.push(key);
-
-    return keys;
+        this.sizes.row.range = [begin, end];
+        this.draw();
+     }
 }
