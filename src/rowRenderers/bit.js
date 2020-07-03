@@ -5,10 +5,10 @@ export class RowRendererBit {
 		this.waveGraph = waveGraph
 	}
 	select(typeInfo) {
-		return typeInfo.name === "bit";
+		return typeInfo.name === "wire" && typeInfo.width == 1;
 	};
 
-	render(parent, data, typeInfo) {
+	render(parent, data, typeInfo, formatInfo) {
  	   var waveRowHeight = this.waveGraph.sizes.row.height;
 	   //var waveRowYpadding = this.waveGraph.sizes.row.ypadding;
 	   var waveRowX = this.waveGraph.waveRowX;
@@ -17,10 +17,10 @@ export class RowRendererBit {
 	    var linePoints = [];
 	    var invalidRanges = [];
 	    data.forEach(function(d) {
-	        if (d[1].indexOf('x') >= 0) {
+	        if (d[1].indexOf('X') >= 0) {
 	            invalidRanges.push(d);
 	        } else {
-	            var v = Number.parseInt(d[1])
+	            var v = Number.parseInt(d[1]);
 	            linePoints.push([d[0], v]);
 	            linePoints.push([d[0] + d[2], v]);
 	        }
