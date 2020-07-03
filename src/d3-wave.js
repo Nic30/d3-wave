@@ -52,7 +52,7 @@ export default class WaveGraph {
     	var t_range = this.xRange;
         var zoom = d3.zoom()
                      .extent([[0, 0], t_range])
-                      //.extent([[0, 0], t_range])
+                     //.extent([[0, 0], t_range])
                      .translateExtent([[0, 0], [Infinity, 0]])
                      .on("zoom", this.zoomed.bind(this));
         this.svg.call(zoom);
@@ -128,7 +128,7 @@ export default class WaveGraph {
         var xValues = xaxisScale.ticks(10).map(function(d) {
                                         return xaxisScale(d)
                                 });
-        // add the X gridlines
+        // add the X gridlines (parallel with x axis)
         var gridLines = this.g.selectAll(".grid-line-x")
                               .data(xValues);
 
