@@ -32,8 +32,8 @@ Signal record
 ```json
 { "name": "<signal name>"
   "type": {"name": "<vcd signal type>",
-           "width": <bit width of signal (integer)>},
-  "data": [<data records>],
+           "width": "<bit width of signal (integer)>"},
+  "data": ["<data records>"],
 }
 ```
 
