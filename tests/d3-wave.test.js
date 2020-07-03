@@ -14,7 +14,6 @@ describe('Testing wave rendering basics', () => {
       var gs = svg.selectAll("g");
       expect(gs.size()).toBe(1);
   });
-  
 });
 
 
