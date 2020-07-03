@@ -3,25 +3,7 @@ import {filterData, flattenSignals} from "./filterData.js";
 import {RowRendererBit} from "./rowRenderers/bit.js"
 import {RowRendererBits, SCALAR_FORMAT} from "./rowRenderers/bits.js"
 import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from "./signalLabelManipulation.js";
-
-const TIME_UNITS = [
-	[1, "ps"],
-	[1000, "ns"],
-	[1000000, "us"],
-	[1000000000, "ms"],
-	[1000000000000, "s"],
-];
-
-function create_time_formater(divider, unit_name) {
-	return function(d) {
-		var v = d / divider;
-		if (Number.isInteger(v)) {
-			return v + " " + unit_name;
-		} else {
-			return  v.toFixed(2) + " " + unit_name;
-		}
-	}
-}
+import {create_time_formater_for_time_range} from "./timeFormat.js"
 
 // main class which represents the visualizer
 export default class WaveGraph {
@@ -68,13 +50,12 @@ export default class WaveGraph {
 
     setZoom() {
     	var t_range = this.xRange;
-    	var t_range_rev = [t_range[1], t_range[0]];
         var zoom = d3.zoom()
-                     .extent([[0, 0], t_range_rev]) // initial position
-                     .scaleExtent([1, 10])
-                     .translateExtent([[-t_range[1], -t_range[0]], t_range_rev])
+                     .extent([[0, 0], t_range])
+                      //.extent([[0, 0], t_range])
+                     .translateExtent([[0, 0], [Infinity, 0]])
                      .on("zoom", this.zoomed.bind(this));
-        this.svg.call(zoom);	
+        this.svg.call(zoom);
     }
     /*
 	 * extract width/height from svg and apply margin to main "g"
@@ -182,24 +163,15 @@ export default class WaveGraph {
             var xaxis = this.xaxis;
             xaxisG.call(xaxis.scale(xaxisScale))
         } else {
-        	// resolve which timeunit to use
-        	var time_range = this.xRange;
-        	time_range = time_range[1] - time_range[0];
-        	var time_unit = null;
-        	for (var i = 0; i < TIME_UNITS.length; i++) {
-        		var u = TIME_UNITS[i];
-        		if (time_range < 10 * u[0] || i == TIME_UNITS.length - 1) {
-        			time_unit = u;
-        			break;
-        		}
-        	}
             // create xaxisG
-            var xaxis = this.xaxis = d3.axisTop(xaxisScale)
-                                       .tickFormat(create_time_formater(time_unit[0], time_unit[1]));
+            this.xaxis = d3.axisTop(xaxisScale)
+                           .tickFormat(
+	                            create_time_formater_for_time_range(this.sizes.row.range)
+                           );
             this.xaxisG = this.g.append("g")
                           .attr("class", "axis axis-x")
                           .attr("transform", "translate(0,0)")
-                          .call(xaxis);
+                          .call(this.xaxis);
         }
     }
     
@@ -312,6 +284,11 @@ export default class WaveGraph {
         }
 
         this.sizes.row.range = [begin, end];
+        if (this.xaxis) {
+            this.xaxis.tickFormat(
+	            create_time_formater_for_time_range(this.sizes.row.range)
+            );
+        }
         this.draw();
      }
 }
