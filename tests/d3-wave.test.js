@@ -26,23 +26,21 @@ describe('Testing wave rendering of example', () => {
          .attr("height", 500);  
 
       var wave = new WaveGraph(svg);
-      var signalData = JSON.parse(fs.readFileSync('examples/wave0.json', 'utf8'));
-      var signalRows = [];
-      WaveGraph.temporaryFlattenSignals(signalData, signalRows);
+      var signalData = JSON.parse(fs.readFileSync('examples/FifoTC_test_normalOp.json', 'utf8'));
       
       
       it("signal data correctly flattened", function() {
-          expect(signalRows.length).toBe(36);
+          expect(wave.data.length).toBe(19);
       });
-      wave.bindData(signalRows);
+      wave.bindData(signalData);
       wave.draw();
 
       it("SVG has correct count of series", function() {
           var v = svg.selectAll(".value-row");
-          expect(v.size()).toBe(signalRows.length);
+          expect(v.size()).toBe(wave.data.length);
       });
       it("SVG has correct count of series labels", function() {
           var t =  d3.selectAll(".axis-y").selectAll("text");
-          expect(t.size()).toBe(signalRows.length);
+          expect(t.size()).toBe(wave.data.length);
       });
 });
