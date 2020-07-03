@@ -30,7 +30,7 @@ python -m http.server  # run http server in root directory in order to open the 
 
 Signal record 
 ```json
-{ "name": "<signal name>"
+{ "name": "<signal name>",
   "type": {"name": "<vcd signal type>",
            "width": "<bit width of signal (integer)>"},
   "data": ["<data records>"],
