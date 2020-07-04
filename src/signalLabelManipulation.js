@@ -2,17 +2,23 @@ import * as d3 from "d3";
 
 export function signalLabelManipulationRegisterHandlers(graph) {
 	graph.svg.on("mouseover", function(d,i) {
-	    d3.select(window).on('keypress', function () {
+	    d3.select(window).on('keydown', function () {
             var tagName = d3.select(d3.event.target).node().tagName;
             if (tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA') {
                 return;
             }
             if (d3.event.key == "Delete") {
-            	console.log("del")
+	            var updated = false;
             	graph.data = graph.data.filter(function (d) {
-            		return !d[1].selected;
-            	})
-            	graph.draw();
+            		if (d[1].selected) {
+	                     updated = true;
+	                     return false;
+                    } else {
+	                     return true;
+                    }
+            	});
+                if (updated)
+            	    graph.draw();
             }
         });
 	});
