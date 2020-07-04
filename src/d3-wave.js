@@ -52,21 +52,22 @@ export default class WaveGraph {
     setZoom() {
     	var t_range = this.xRange;
         var zoom = d3.zoom()
-                     .extent([[0, 0], t_range])
-                     .translateExtent([[0, 0], [t_range[1], 0]])
+                     .extent([[t_range[0], 0], [t_range[1], 0]])
+                     .translateExtent([[t_range[0], 0], [t_range[1], 0]])
                      .on("zoom", this.zoomed.bind(this));
         this.svg.call(zoom);
     }
     zoomed() {
         var range = this.xRange;
         var t = d3.event.transform;
-        var intervalRange = range[1] - range[0];
+        var totalRange = range[1] - range[0];
+        var currentRange = totalRange * t.k;
         var display_width = this.xaxisG.select(".domain").node().getBBox().width;
-        var begin = (-t.x/display_width) * intervalRange * t.k;
+        var begin = (-t.x/display_width) * currentRange;
         if (begin < 0) {
             begin = 0;
         }
-        var end = begin + intervalRange * t.k;
+        var end = begin + currentRange;
         if (end < 1) {
             end = 1;
         }
