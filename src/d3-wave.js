@@ -233,8 +233,8 @@ export default class WaveGraph {
      	    // Select correct renderer function based on type of data series
             selection.each(function(d) {
                //var name = d[0];
-               var signalType = d[1];
-               var data = d[2];
+               var signalType = d.type;
+               var data = d.data;
                if (data.length) {
             	   var parent = d3.select(this);
             	   data = filterDataByTime(data, graph.sizes.row.range)
@@ -283,7 +283,7 @@ export default class WaveGraph {
         this.yaxisG = this.g.append("g")
             .classed("axis axis-y", true)
             .call(d3.axisLeft(yaxisScale)
-                    .tickFormat((i) => signalData[i][0])
+                    .tickFormat((i) => signalData[i].name)
             );
         signalLabelManipulation(
     		   this, this.yaxisG, namesHeight,
@@ -300,7 +300,7 @@ export default class WaveGraph {
         var maxT = 0;
         for (var i = 0; i < signalData.length; i++) {
         	var d = signalData[i];
-            var dData = d[2];
+            var dData = d.data;
             if (dData.length) {
         	    var last_time_in_data = dData[dData.length - 1][0];
         	    maxT = Math.max(maxT, last_time_in_data);

@@ -5,12 +5,12 @@ export function flattenSignals(sig, res) {
 	}
 	var t = sig.type.name;
 	if (t == "struct") {
-		res.push([sig.name, sig.type, []]);
+		res.push({"name": sig.name, "type": sig.type, "data": []});
 		sig.data.forEach(function(ch) {
 			flattenSignals(ch, res);
 	    });
 	} else {
-		res.push([sig.name, sig.type, sig.data]);
+		res.push({"name": sig.name, "type": sig.type, "data": sig.data});
 	}
 }
 
