@@ -59,9 +59,9 @@ export default class WaveGraph {
     setZoom() {
     	var t_range = this.xRange;
         var zoom = d3.zoom()
-                     .extent([[t_range[0], 0], [t_range[1], 0]])
+                     .scaleExtent([1/t_range[1], 1.1])
                      .translateExtent([[t_range[0], 0], [t_range[1], 0]])
-                     .on("zoom", this.zoomed.bind(this));
+                     .on("zoom", this.zoomed.bind(this))
         this.svg.call(zoom);
     }
     zoomed() {
@@ -71,13 +71,9 @@ export default class WaveGraph {
         var currentRange = totalRange * t.k;
         var display_width = this.xaxisG.select(".domain").node().getBBox().width;
         var begin = (-t.x/display_width) * currentRange;
-        if (begin < 0) {
-            begin = 0;
-        }
+        begin = Math.max(Math.min(begin, range[1] - currentRange), 0);
         var end = begin + currentRange;
-        if (end < 1) {
-            end = 1;
-        }
+        end = Math.max(end, 1);
 
         this.sizes.row.range = [begin, end];
         if (this.xaxis) {
