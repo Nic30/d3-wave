@@ -5,7 +5,7 @@ import {RowRendererBits, SCALAR_FORMAT} from "./rowRenderers/bits.js"
 import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from "./signalLabelManipulation.js";
 import {create_time_formater_for_time_range} from "./timeFormat.js"
 
-// main class which represents the visualizer
+// main class which represents the signal wave viewer
 export default class WaveGraph {
 
     constructor(svg) {
@@ -19,12 +19,12 @@ export default class WaveGraph {
         this.waveRowY = null;
         this.verticalHelpLine = null;
         
-        // just some value, the real value are set in bindData()
-        var maxT = 500;
-        this.xRange = [0, maxT];
+        // total time range
+        this.xRange = [0, 1];
         this.sizes = {
             row : {
-                range : [0, maxT],
+	            // currently used time range
+                range : [0, 1],
                 height : 20,
                 ypadding : 5,
             },
@@ -52,10 +52,33 @@ export default class WaveGraph {
     	var t_range = this.xRange;
         var zoom = d3.zoom()
                      .extent([[0, 0], t_range])
-                     //.extent([[0, 0], t_range])
-                     .translateExtent([[0, 0], [Infinity, 0]])
+                     .translateExtent([[0, 0], [t_range[1], 0]])
                      .on("zoom", this.zoomed.bind(this));
         this.svg.call(zoom);
+    }
+    zoomed() {
+        var range = this.xRange;
+        var t = d3.event.transform;
+        var intervalRange = range[1] - range[0];
+        var display_width = this.xaxisG.select(".domain").node().getBBox().width;
+        var begin = (-t.x/display_width) * intervalRange * t.k;
+        if (begin < 0) {
+            begin = 0;
+        }
+        var end = begin + intervalRange * t.k;
+        if (end < 1) {
+            end = 1;
+        }
+
+        this.sizes.row.range = [begin, end];
+        if (this.xaxis) {
+	        // update tick formater becase time range has changed
+            // and we may want to use a different time unit
+            this.xaxis.tickFormat(
+	            create_time_formater_for_time_range(this.sizes.row.range)
+            );
+        }
+        this.draw();
     }
     /*
 	 * extract width/height from svg and apply margin to main "g"
@@ -267,28 +290,6 @@ export default class WaveGraph {
         	maxT = Math.max(maxT, last_time_in_data);
         }
         this.xRange[1] = this.sizes.row.range[1] = maxT;
-        this.setZoom()
+        this.setZoom();
     }
-
-    zoomed() {
-        var range = this.xRange;
-        var t = d3.event.transform;
-        var intervalRange = range[1] - range[0];
-        var begin = -t.x;
-        if (begin < 0) {
-            begin = 0;
-        }
-        var end = begin + intervalRange*t.k;
-        if (end < 1) {
-            end = 1;
-        }
-
-        this.sizes.row.range = [begin, end];
-        if (this.xaxis) {
-            this.xaxis.tickFormat(
-	            create_time_formater_for_time_range(this.sizes.row.range)
-            );
-        }
-        this.draw();
-     }
 }
