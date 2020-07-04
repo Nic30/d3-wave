@@ -37,6 +37,7 @@ export default class WaveGraph {
             width : -1,
             height : -1
         };
+        this.TICKS_PER_X_AXIS = 10;
         this.data = [];
         // list of renderers for value rows
         this.rowRenderers = [
@@ -148,7 +149,8 @@ export default class WaveGraph {
         // https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
         var height = this.sizes.height;
         var xaxisScale = this.xaxisScale;
-        var xValues = xaxisScale.ticks(10).map(function(d) {
+        var xValues = xaxisScale.ticks(this.TICKS_PER_X_AXIS)
+                                .map(function(d) {
                                         return xaxisScale(d)
                                 });
         // add the X gridlines (parallel with x axis)
@@ -160,9 +162,9 @@ export default class WaveGraph {
            .append("line")
            .attr("class", "grid-line-x")
            .merge(gridLines)
-           .attr('x1', function (d) { return d })
+           .attr('x1', function (d) { return d; })
            .attr('y1', 0)
-           .attr('x2', function (d) { return d })
+           .attr('x2', function (d) { return d; })
            .attr('y2', height)
 
         gridLines.exit().remove();
@@ -192,9 +194,9 @@ export default class WaveGraph {
 	                            create_time_formater_for_time_range(this.sizes.row.range)
                            );
             this.xaxisG = this.g.append("g")
-                          .attr("class", "axis axis-x")
-                          .attr("transform", "translate(0,0)")
-                          .call(this.xaxis);
+                                .attr("class", "axis axis-x")
+                                .attr("transform", "translate(0,0)")
+                                .call(this.xaxis);
         }
     }
     
