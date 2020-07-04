@@ -5,6 +5,7 @@ export function flattenSignals(sig, res) {
 	}
 	var t = sig.type.name;
 	if (t == "struct") {
+		res.push([sig.name, sig.type, []]);
 		sig.data.forEach(function(ch) {
 			flattenSignals(ch, res);
 	    });
@@ -14,7 +15,7 @@ export function flattenSignals(sig, res) {
 }
 
 
-export function filterData(data, rowRange) {
+export function filterDataByTime(data, rowRange) {
     // return list ([time, value, duration])
      var min = rowRange[0];
      if (min < 0)

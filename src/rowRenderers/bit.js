@@ -1,9 +1,7 @@
 import * as d3 from "d3";
+import {RowRendererBase} from "./base.js";
 
-export class RowRendererBit {
-	constructor(waveGraph) {
-		this.waveGraph = waveGraph
-	}
+export class RowRendererBit extends RowRendererBase {
 	select(typeInfo) {
 		return typeInfo.name === "wire" && typeInfo.width == 1;
 	};

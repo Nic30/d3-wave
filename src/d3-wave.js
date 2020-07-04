@@ -1,11 +1,15 @@
 import * as d3 from "d3";
-import {filterData, flattenSignals} from "./filterData.js";
-import {RowRendererBit} from "./rowRenderers/bit.js"
-import {RowRendererBits, SCALAR_FORMAT} from "./rowRenderers/bits.js"
+import {filterDataByTime, flattenSignals} from "./filterData.js";
+import {RowRendererBit} from "./rowRenderers/bit.js";
+import {RowRendererBits} from "./rowRenderers/bits.js";
+import {RowRendererEnum} from "./rowRenderers/enum.js";
+import {RowRendererLabel} from "./rowRenderers/label.js";
+import {RowRendererStruct} from "./rowRenderers/struct.js";
+import {SCALAR_FORMAT} from "./numFormat.js";
 import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from "./signalLabelManipulation.js";
 import {create_time_formater_for_time_range} from "./timeFormat.js"
 
-// main class which represents the signal wave viewer
+// main class which constructs the signal wave viewer
 export default class WaveGraph {
 
     constructor(svg) {
@@ -42,7 +46,10 @@ export default class WaveGraph {
         // list of renderers for value rows
         this.rowRenderers = [
         	new RowRendererBit(this),
-        	new RowRendererBits(this)
+        	new RowRendererBits(this),
+            new RowRendererEnum(this),
+            new RowRendererLabel(this),
+            new RowRendererStruct(this),
         ];
         this.draggedElem = null;
         this.setSizes();
@@ -231,12 +238,16 @@ export default class WaveGraph {
                var data = d[2];
                if (data.length) {
             	   var parent = d3.select(this);
-            	   data = filterData(data, graph.sizes.row.range)
+            	   data = filterDataByTime(data, graph.sizes.row.range)
             	   var rendererFound = false;
             	   for (var i = 0; i < graph.rowRenderers.length; i++) {
 			           var renderer = graph.rowRenderers[i];
 			           if (renderer.select(signalType)) {
-				           	renderer.render(parent, data, signalType, SCALAR_FORMAT.UINT_HEX);
+    			            var formater = SCALAR_FORMAT.UINT_HEX;
+				            if (renderer instanceof RowRendererEnum) {
+					            formater = (d) => {return d;};
+				            }
+				           	renderer.render(parent, data, signalType, formater);
 				           	rendererFound = true;
 				           	break;
 			           }
@@ -289,8 +300,11 @@ export default class WaveGraph {
         var maxT = 0;
         for (var i = 0; i < signalData.length; i++) {
         	var d = signalData[i];
-        	var last_time_in_data = d[2][d[2].length - 1][0];
-        	maxT = Math.max(maxT, last_time_in_data);
+            var dData = d[2];
+            if (dData.length) {
+        	    var last_time_in_data = dData[dData.length - 1][0];
+        	    maxT = Math.max(maxT, last_time_in_data);
+            }
         }
         this.xRange[1] = this.sizes.row.range[1] = maxT;
         this.setZoom();
