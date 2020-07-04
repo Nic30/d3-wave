@@ -211,10 +211,8 @@ export default class WaveGraph {
     // draw whole graph
     draw() {
         this.setSizes();
-
         var sizes = this.sizes;
         var graph = this;
-        var signalData = this.data;
 
         this.drawXAxis();
         this.drawGridLines();
@@ -222,6 +220,7 @@ export default class WaveGraph {
         this.waveRowY = d3.scaleLinear()
 	                      .domain([0, 1])
 	                      .range([0, sizes.row.height]);
+        this.drawYAxis();
         // drawWaves
         // remove previously rendered row data
         this.g.selectAll(".value-row")
@@ -258,23 +257,24 @@ export default class WaveGraph {
                }
             });
         }
-                              
-        var ROW_Y = sizes.row.height + sizes.row.ypadding;
+        // move value row to it's possition                  
+	    var ROW_Y = sizes.row.height + sizes.row.ypadding;
         valueRows.enter()
                  .append("g")
                  .attr("class", "value-row")
                  .merge(valueRows)
                  .call(renderWaveRows)
                  .attr("transform", (d, i) => 'translate(0,' + (i * ROW_Y) + ')')
-
+    }
+    drawYAxis() {
+        var signalData = this.data;
+        var sizes = this.sizes;
+ 
+	    var ROW_Y = sizes.row.height + sizes.row.ypadding;
         // drawWaveLabels
-        var signalNames = signalData.map(function(d, i) {
-            return d[0];
-        })
-        
-        var namesHeight = signalNames.length * ROW_Y;
+        var namesHeight = signalData.length * ROW_Y;
         var yaxisScale = d3.scaleBand()
-                           .domain(d3.range(signalNames.length))
+                           .domain(d3.range(signalData.length))
                            .range([0, namesHeight]);
         this.yaxisScale = yaxisScale;
         // y axis
@@ -283,11 +283,11 @@ export default class WaveGraph {
         this.yaxisG = this.g.append("g")
             .classed("axis axis-y", true)
             .call(d3.axisLeft(yaxisScale)
-                    .tickFormat((i) => signalNames[i])
+                    .tickFormat((i) => signalData[i][0])
             );
-       signalLabelManipulation(
+        signalLabelManipulation(
     		   this, this.yaxisG, namesHeight,
-    		   signalNames, sizes, ROW_Y);
+    		   sizes, ROW_Y);
     }
 
     bindData(_signalData) {

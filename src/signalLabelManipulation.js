@@ -24,7 +24,7 @@ export function signalLabelManipulationRegisterHandlers(graph) {
 	});
 }
 
-export function signalLabelManipulation(graph, yaxisG, namesHeight, signalNames, sizes, ROW_Y) {
+export function signalLabelManipulation(graph, yaxisG, namesHeight, sizes, ROW_Y) {
 	var signalData = graph.data;
 	var yaxisLabes = yaxisG.selectAll('g');
 	yaxisLabes.classed("tick-selected", function(d) {
