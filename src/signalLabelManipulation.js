@@ -83,7 +83,6 @@ export function signalLabelManipulation(graph, yaxisG, namesHeight, sizes, ROW_Y
 			graph.draw();
 		} else {
 			// put label back to it's original possition
-			console.log(new_index * ROW_Y);
 			el.attr("transform", 'translate(0,' + ((new_index + 0.5)  * ROW_Y) + ')');
 		}
 	}
