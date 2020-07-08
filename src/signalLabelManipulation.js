@@ -1,101 +1,134 @@
 import * as d3 from "d3";
 
-export function signalLabelManipulationRegisterHandlers(graph) {
-	graph.svg.on("mouseover", function(d, i) {
-		d3.select(window).on('keydown', function() {
-			var tagName = d3.select(d3.event.target).node().tagName;
-			if (tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA') {
-				return;
-			}
-			if (d3.event.key == "Delete") {
-				var updated = false;
-				graph.data = graph.data.filter(function(d) {
-					if (d.type.selected) {
-						updated = true;
-						return false;
-					} else {
-						return true;
-					}
-				});
-				if (updated)
-					graph.draw();
-			}
-		});
-	});
+export function signalLabelManipulationRegisterHandlers(rootElm, signalList) {
+    rootElm.on('focus', function(){
+        d3.select(this).on('keydown',function() {
+             var tagName = d3.select(d3.event.target).node().tagName;
+             if (tagName == 'INPUT' || tagName == 'SELECT' || tagName == 'TEXTAREA') {
+                 // ignore text edit elements
+                 return;
+             }
+             if (d3.event.key == "Delete") {
+                 signalList.filter(function(d) {
+                     return !d.type.selected;
+                 });
+             }
+        });
+    });
 }
 
-export function signalLabelManipulation(graph, yaxisG, namesHeight, sizes, ROW_Y) {
-	var signalData = graph.data;
-	var yaxisLabes = yaxisG.selectAll('g');
-	yaxisLabes.classed("tick-selected", function(d) {
-		return signalData[d].type.selected;
-	});
-	// select and de-select all "g"
-	// signal labels dragging, reordering
-	function dragstarted(d) {
-		// d = index of clicked signal
-		var el = d3.select(this);
-		var selectedFirstIndex = null;
-
-		if (d3.event.shiftKey || d3.event.sourceEvent.shiftKey) {
-			// searching for first isseleted in signalData
-			for (var i = 0; i < signalData.length; i++) {
-				var isselected = signalData[i].type.selected
-				if (isselected) {
-					selectedFirstIndex = i;
-					break;
-				}
-			}
-		}
-		if (selectedFirstIndex == null) {
-			// toggle selection  
-			var isselected = signalData[d].type.selected = !signalData[d].type.selected;
-			el.raise().classed("tick-selected", isselected);
-		} else {
-			// select all between last selected and clicked
-			// de-select all
-			for (var i = 0; i < signalData.length; i++) {
-				if (selectedFirstIndex < d) {
-					signalData[i].type.selected = selectedFirstIndex <= i && i <= d;
+export function signalLabelManipulation(signalList, labels, ROW_Y) {
+    var previouslyClicked = null;
+	function resolveInsertTarget(y) {
+		var target_parent_node, on_parent_i;
+		
+		var nodes = signalList.visibleNodes();
+		for (var i = 0; i < nodes.length; i++) {
+			var n = nodes[i];
+			if (y <= n.y - ROW_Y * 0.5 && n.parent) {
+				// insert before n (parent is checked be)
+				var siblings = n.parent.children;
+				target_parent_node = n.parent;
+				on_parent_i = siblings.indexOf(n);
+			    break;
+			} else if (y <= n.y + ROW_Y) {
+				// insert after
+				// if n is hierarchical insert into
+				if (n.children) {
+					target_parent_node = n;
+					on_parent_i = 0;
+				    break;
 				} else {
-					signalData[i].type.selected = selectedFirstIndex >= i && i >= d;
+				    var siblings = n.parent.children;
+				    target_parent_node = n.parent;
+				    on_parent_i = siblings.indexOf(n) + 1;
+                    break;
 				}
 			}
 		}
-	}
-	function dragged(d) {
-		var el = d3.select(this);
-		el.attr("transform", 'translate(' + 0 + ',' + d3.event.y + ')')
-	}
-	function dragended(old_index) {
-		var el = d3.select(this);
-		el.classed("tick-selected", false);
-		var y = this.transform.baseVal.consolidate().matrix.f;
-		var new_index = Math.round(y / ROW_Y);
-		if (old_index != new_index) {
-			var d = signalData[old_index];
-			signalData.splice(old_index, 1);
-			if (old_index > new_index) {
-				signalData.splice(new_index, 0, d);
-			} else if (new_index > old_index) {
-				signalData.splice(new_index - 1, 0, d);
-			}
-			graph.draw();
-		} else {
-			// put label back to it's original possition
-			el.attr("transform", 'translate(0,' + ((new_index + 0.5)  * ROW_Y) + ')');
-		}
+		return [target_parent_node, on_parent_i];
 	}
 
-	var yticks = yaxisG.selectAll(".tick");
-	yticks.call(d3.drag()
-		          .on("start", dragstarted)
-		          .on("drag", dragged)
-		          .on("end", dragended)
-	    )
-		.append("rect")
-		.attr("width", sizes.margin.left)
-		.attr("height", ROW_Y)
-		.attr("x", -sizes.margin.left)
-		.attr("y", -ROW_Y * 0.5);
+    // select and de-select all "g"
+    // signal labels dragging, reordering
+    function dragStarted(d) {
+	    // move to front to make it virtually on top of all others
+	    d3.select(this).raise();
+        // d = index of clicked signal
+        var current = d;
+        var shiftKey = d3.event.shiftKey || d3.event.sourceEvent.shiftKey;
+        if (shiftKey && previouslyClicked != null) {
+	        // select all between last selected and clicked
+            // de-select all
+            signalList.visibleNodes().forEach(function(d) {
+                var i = d.id;
+                if (previouslyClicked.id < current.id) {
+                    d.data.type.selected = previouslyClicked.id <= i && i <= current.id;
+                } else {
+                    d.data.type.selected = previouslyClicked.id >= i && i >= current.id;
+                }
+            });
+            labels.classed("selected", (d) => d.data.type.selected);
+            return;
+        }
+        var altKey = d3.event.altKey || d3.event.sourceEvent.altKey;
+        if (!altKey) {
+			 signalList.visibleNodes().forEach(function(d) {
+				if (current !== d)
+				    d.data.type.selected = false;
+			});
+        }
+        // toggle selection  
+        current.data.type.selected = !current.data.type.selected;
+        //el.raise().classed("selected", isselected);
+        labels.classed("selected", (d) => d.data.type.selected);
+    }
+    function dragged(d) {
+        var el = d3.select(this);
+        el.attr("transform", 'translate(' + d.x + ',' + d3.event.y + ')');
+        // var insertTarget = resolveInsertTarget(d3.event.y);
+        // console.log(insertTarget);
+    }
+    function dragEnded(d) {
+        var el = d3.select(this);
+	    // move to front to make it virtually on top of all others
+	    el.lower();
+        var insertTarget = resolveInsertTarget(d3.event.y);
+        //console.log(insertTarget);
+        var shiftKey = d3.event.shiftKey || d3.event.sourceEvent.shiftKey;
+        if (!(previouslyClicked != null && shiftKey) && d.data.type.selected) {
+	        previouslyClicked = d;
+        } else {
+	        previouslyClicked = null;
+        }
+        if (insertTarget[0] != d.parent || insertTarget[1] != d.parent.children.indexOf(d)) {
+            // moving on new place
+            el.classed("selected", false);
+            // insert on new place (we do it first, because we do not want to break indexing)
+            var old_siblings = d.parent.children;
+            var old_index = old_siblings.indexOf(d);
+            var new_siblings = insertTarget[0].children;
+            var new_index = insertTarget[1];
+            new_siblings.splice(new_index, 0, d);
+            // remove from original possition
+            if (new_siblings === old_siblings && new_index < old_index) {
+	             old_index += 1;
+            }
+            old_siblings.splice(old_index, 1);
+            d.parent = insertTarget[0];
+            d.depth = d.parent.depth + 1;
+			signalList.update();
+            // onChange
+        } else {
+            // put label back to it's original possition
+            el.attr("transform", 'translate(' + d.x + ',' + d.y + ')');
+        }
+    }
+
+    labels.call(
+        d3.drag()
+          .on("start", dragStarted)
+          .on("drag", dragged)
+          .on("end", dragEnded)
+     );
 }

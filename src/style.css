@@ -64,8 +64,30 @@
 
 .axis text {
 	shape-rendering: crispEdges;
-	vector-effect: non-scaling-stroke;
 	fill: yellow;
+}
+
+
+.axis-y path {
+	shape-rendering: crispEdges;
+	fill: yellow;
+}
+
+.axis-y .highlight text {
+    fill: #ff751a;
+    font-weight: bold;
+}
+
+.scrollbar .mover {
+  fill: steelblue;
+  pointer-events: all;
+  cursor: ns-resize;
+  opacity: 0.5;
+}
+
+.scrollbar .subBar { 
+  fill: gray;
+  opacity: 0.5;
 }
 
 .vertical-help-line {
@@ -73,7 +95,15 @@
 	stroke-width: 2;
 }
 
-.tick-selected rect {
+.labelcell.selected rect {
 	opacity: 50%;
 	fill: aqua;
-};
+}
+
+.labelcell text {
+	cursor:grabbing;
+}
+
+.labelcell .expandable {
+	cursor:pointer;
+}
