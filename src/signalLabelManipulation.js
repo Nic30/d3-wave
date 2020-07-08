@@ -89,6 +89,13 @@ export function signalLabelManipulation(signalList, labels, ROW_Y) {
         // var insertTarget = resolveInsertTarget(d3.event.y);
         // console.log(insertTarget);
     }
+    function regenerateDepth(d) {
+		var offset = d.depth; 
+	    (d.children || []).forEach((d2) => {
+				d2.depth = offset + 1;
+                regenerateDepth(d2);
+        });
+    }
     function dragEnded(d) {
         var el = d3.select(this);
 	    // move to front to make it virtually on top of all others
@@ -101,14 +108,29 @@ export function signalLabelManipulation(signalList, labels, ROW_Y) {
         } else {
 	        previouslyClicked = null;
         }
-        if (insertTarget[0] != d.parent || insertTarget[1] != d.parent.children.indexOf(d)) {
+
+        // check if inserting to it self
+        var new_parent = insertTarget[0]
+        var new_index = insertTarget[1];
+        var _new_parent = new_parent;
+        var inserting_to_itself = false;
+        while (_new_parent) {
+	        if (_new_parent === d) {
+	          inserting_to_itself = true;
+                 break;
+	        }
+	        _new_parent = _new_parent.parent;
+        }
+
+        if (!inserting_to_itself && (
+	            new_parent != d.parent ||
+                new_index != d.parent.children.indexOf(d))) {
             // moving on new place
             el.classed("selected", false);
             // insert on new place (we do it first, because we do not want to break indexing)
             var old_siblings = d.parent.children;
             var old_index = old_siblings.indexOf(d);
             var new_siblings = insertTarget[0].children;
-            var new_index = insertTarget[1];
             new_siblings.splice(new_index, 0, d);
             // remove from original possition
             if (new_siblings === old_siblings && new_index < old_index) {
@@ -117,8 +139,8 @@ export function signalLabelManipulation(signalList, labels, ROW_Y) {
             old_siblings.splice(old_index, 1);
             d.parent = insertTarget[0];
             d.depth = d.parent.depth + 1;
+            regenerateDepth(d);
 			signalList.update();
-            // onChange
         } else {
             // put label back to it's original possition
             el.attr("transform", 'translate(' + d.x + ',' + d.y + ')');
