@@ -21,19 +21,22 @@ python -m http.server  # run http server in root directory in order to open the 
 
 ## Features
 
-* Vertical scrolling and zoom
-* Renderers for int, str, bit and bit vector values
-
+* Vertical scrolling and zoom in time domain
+* Tree based signal hierarchy view (collapsable)
+* Signal tree scrollbar with preview
+* Drag-and-drop/key based signal organization
+* Renderers for int, str, bit, enum and bit vector values (user extendible)
+* Responsive design
 
 ## Input JSON format
-
 
 Signal record 
 ```json
 { "name": "<signal name>",
   "type": {"name": "<vcd signal type>",
            "width": "<bit width of signal (integer)>"},
-  "data": ["<data records>"],
+  "data": ["<data records>"],      // optionally
+  "children": ["<signal recors>"], // optionally, if children should be collapsed by default use _children
 }
 ```
 
