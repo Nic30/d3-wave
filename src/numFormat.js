@@ -8,6 +8,8 @@ const NUM_FORMATS = {
 
 function gen_formater(new_base) {
 	return function (d) {
+		if (typeof d == "number")
+			return d.toString(new_base);
 		var base = d[0];
 		var d = d.substring(1);
 		base = NUM_FORMATS[base];
@@ -28,7 +30,7 @@ function gen_formater(new_base) {
 		if (new_base == 2)
 			new_base = 1;
 		if (base == 2)
-			base = 2;
+			base = 1;
 
 		if (contains_x) {
 			var _num = [];
