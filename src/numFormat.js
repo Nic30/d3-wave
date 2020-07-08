@@ -10,9 +10,9 @@ function gen_formater(new_base) {
 	return function (d) {
 		if (typeof d == "number")
 			return d.toString(new_base);
-		var base = d[0];
+		var base_char = d[0];
 		var d = d.substring(1);
-		base = NUM_FORMATS[base];
+		var base = NUM_FORMATS[base];
 		if (base == new_base)
 			return d;
 		var contains_x = d.indexOf('X') >= 0;
@@ -24,7 +24,7 @@ function gen_formater(new_base) {
 			d = d.replace(/X/g, "0");
 		}
 		
-		var num = BigInt("0"+ d); 
+		var num = BigInt("0" + base_char + d); 
 		var num = num.toString(new_base);
 		
 		if (new_base == 2)
