@@ -1,20 +1,4 @@
 
-export function flattenSignals(sig, res) {
-	if (sig.type === undefined) {
-		return;
-	}
-	var t = sig.type.name;
-	if (t == "struct") {
-		res.push({"name": sig.name, "type": sig.type, "data": []});
-		sig.data.forEach(function(ch) {
-			flattenSignals(ch, res);
-	    });
-	} else {
-		res.push({"name": sig.name, "type": sig.type, "data": sig.data});
-	}
-}
-
-
 export function filterDataByTime(data, rowRange) {
     // return list ([time, value, duration])
      var min = rowRange[0];

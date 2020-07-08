@@ -8,9 +8,11 @@ const NUM_FORMATS = {
 
 function gen_formater(new_base) {
 	return function (d) {
-		var base = d[0];
+		if (typeof d == "number")
+			return d.toString(new_base);
+		var base_char = d[0];
 		var d = d.substring(1);
-		base = NUM_FORMATS[base];
+		var base = NUM_FORMATS[base];
 		if (base == new_base)
 			return d;
 		var contains_x = d.indexOf('X') >= 0;
@@ -19,20 +21,16 @@ function gen_formater(new_base) {
 
 		var orig_d = d;
 		if (contains_x) {
-			d = d.replace("X", "0");
+			d = d.replace(/X/g, "0");
 		}
 		
-		var num = parseInt(d, base); 
-		if(num > Number.MAX_SAFE_INTEGER) {
-			throw new Error("NotImplemented: integer larger than 53 bits");
-		}
+		var num = BigInt("0" + base_char + d); 
 		var num = num.toString(new_base);
-		
 		
 		if (new_base == 2)
 			new_base = 1;
 		if (base == 2)
-			base = 2;
+			base = 1;
 
 		if (contains_x) {
 			var _num = [];

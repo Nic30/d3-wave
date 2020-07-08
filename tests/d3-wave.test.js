@@ -29,7 +29,7 @@ describe('Testing wave rendering of example', () => {
       
       
       it("signal data correctly flattened", function() {
-          expect(wave.data.length).toBe(22);
+          expect(wave.data.length).toBe(19);
       });
       wave.bindData(signalData);
       wave.draw();
