@@ -26,6 +26,7 @@ python -m http.server  # run http server in root directory in order to open the 
 * Signal tree scrollbar with preview
 * Drag-and-drop/key based signal organization
 * Renderers for int, str, bit, enum and bit vector values (user extendible)
+* Dynamic time unit on x-axis
 * Responsive design
 
 ## Input JSON format
