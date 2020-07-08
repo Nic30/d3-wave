@@ -31,7 +31,7 @@ python -m http.server  # run http server in root directory in order to open the 
 ## Input JSON format
 
 Signal record 
-```json
+```js
 { "name": "<signal name>",
   "type": {"name": "<vcd signal type>",
            "width": "<bit width of signal (integer)>"},
