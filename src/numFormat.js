@@ -19,15 +19,11 @@ function gen_formater(new_base) {
 
 		var orig_d = d;
 		if (contains_x) {
-			d = d.replace("X", "0");
+			d = d.replace(/X/g, "0");
 		}
 		
-		var num = parseInt(d, base); 
-		if(num > Number.MAX_SAFE_INTEGER) {
-			throw new Error("NotImplemented: integer larger than 53 bits");
-		}
+		var num = BigInt("0"+ d); 
 		var num = num.toString(new_base);
-		
 		
 		if (new_base == 2)
 			new_base = 1;
