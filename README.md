@@ -28,6 +28,7 @@ python -m http.server  # run http server in root directory in order to open the 
 * Renderers for int, str, bit, enum and bit vector values (user extendible)
 * Dynamic time unit on x-axis
 * Responsive design
+* Arbitrary integer values
 
 ## Input JSON format
 
