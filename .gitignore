@@ -6,3 +6,4 @@ tests/coverage/
 .settings/
 .project
 package-lock.json
+.pydevproject
