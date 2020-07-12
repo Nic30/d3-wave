@@ -6,7 +6,7 @@ const NUM_FORMATS = {
 		'x': 16
 };
 
-function gen_formater(new_base) {
+function gen_formatter(new_base) {
 	return function (d) {
 		if (typeof d == "number")
 			return d.toString(new_base);
@@ -72,8 +72,8 @@ function gen_formater(new_base) {
 }
 
 export const SCALAR_FORMAT = {
-	UINT_BIN: gen_formater(2),
-	UINT_OCT: gen_formater(8),
-	UINT_DEC: gen_formater(10),
-	UINT_HEX: gen_formater(16),
+	UINT_BIN: gen_formatter(2),
+	UINT_OCT: gen_formatter(8),
+	UINT_DEC: gen_formatter(10),
+	UINT_HEX: gen_formatter(16),
 };

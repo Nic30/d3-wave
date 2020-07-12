@@ -35,6 +35,7 @@
   },
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.1",
     "d3": "latest"
   },
   "devDependencies": {
