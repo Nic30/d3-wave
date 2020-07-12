@@ -114,7 +114,7 @@ export default class WaveGraph {
 		this.g.attr("transform",
 			"translate(" + s.margin.left + "," + s.margin.top + ")");
 		if (this.treelist)
-		    this.treelist.size(s.margin.left, s.height);
+			this.treelist.size(s.margin.left, s.height);
 	}
 
 	drawYHelpLine() {
@@ -213,11 +213,58 @@ export default class WaveGraph {
 		// y axis
 		if (!this.yaxisG) {
 			//this.yaxisG.remove();
-		    this.yaxisG = this.svg.append("g")
-		        .classed("axis axis-y", true)
-		    this.yaxisG.attr("transform",
-		    	"translate(0," + (sizes.margin.top + ROW_Y / 2) + ")");
-		    this.yaxisG.call(this.treelist);
+			this.yaxisG = this.svg.append("g")
+				.classed("axis axis-y", true)
+			// Define the div for the tooltip
+			var div = d3.select("body").append("div")
+				.attr("class", "tooltip")
+				.style("opacity", 0);
+			// icons uf059 = ? uf067 = + uf01e = reset uf1f8 = del
+			var icons = [
+				{
+					"icon": '\uf059',
+					"onmouseover": function() {
+						div.transition()
+							.duration(200)
+							.style("opacity", .9);
+						div.html("tooltip fwampogmwarpo")
+							.style("left", (d3.event.pageX) + "px")
+							.style("top", (d3.event.pageY - 28) + "px");
+
+					},
+					"onmouseout": function() {
+						div.transition()
+							.duration(500)
+							.style("opacity", 0);
+					}
+				},
+				{ "icon": '\uf067' },
+				{ "icon": '\uf01e' },
+				{ "icon": '\uf1f8' }];
+			this.yaxisG.selectAll("text").data(icons).enter().append("text")
+			    .classed("icons", true)
+				.attr('font-family', 'FontAwesome')
+				.attr('font-size', function() { return 1 + 'em' })
+				.text(function(d) { return d.icon })
+				.attr("y", -ROW_Y * 0.75)
+				.attr("x", function(d, i) { return i * ROW_Y; })
+				.on("mouseover", function(d) {
+					if (d.onmouseover) {
+						return d.onmouseover();
+					} else {
+						return null;
+					}
+				})
+				.on("mouseout", function(d) {
+					if (d.onmouseout) {
+						return d.onmouseout();
+					} else {
+						return null;
+					}
+				});
+			this.yaxisG.attr("transform",
+				"translate(0," + (sizes.margin.top + ROW_Y / 2) + ")");
+			this.yaxisG.call(this.treelist);
 		}
 	}
 	// draw whole graph
@@ -297,12 +344,12 @@ export default class WaveGraph {
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		var graph = this;
 		this.treelist = treelist(ROW_Y)
-		               .size(sizes.margin.left, sizes.height)
-		               .data(this.allData)
-                       .onChange(function (selection) {
-	                         graph.data = selection.map((d) => {return d.data});
-                             graph.draw();
-                        });
+			.size(sizes.margin.left, sizes.height)
+			.data(this.allData)
+			.onChange(function(selection) {
+				graph.data = selection.map((d) => { return d.data });
+				graph.draw();
+			});
 		this.treelist.data(this.allData);
 		this.setSizes();
 	}
