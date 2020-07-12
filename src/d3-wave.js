@@ -6,8 +6,9 @@ import { RowRendererEnum } from "./rowRenderers/enum.js";
 import { RowRendererLabel } from "./rowRenderers/label.js";
 import { RowRendererStruct } from "./rowRenderers/struct.js";
 import { SCALAR_FORMAT } from "./numFormat.js";
-import { create_time_formater_for_time_range } from "./timeFormat.js"
+import { create_time_formatter_for_time_range } from "./timeFormat.js"
 import { treelist } from "./signalList.js"
+import '@fortawesome/fontawesome-free/js/all.js';
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
@@ -75,10 +76,10 @@ export default class WaveGraph {
 
 		this.sizes.row.range = [begin, end];
 		if (this.xaxis) {
-			// update tick formater becase time range has changed
+			// update tick formatter becase time range has changed
 			// and we may want to use a different time unit
 			this.xaxis.tickFormat(
-				create_time_formater_for_time_range(this.sizes.row.range)
+				create_time_formatter_for_time_range(this.sizes.row.range)
 			);
 		}
 		this.draw();
@@ -195,7 +196,7 @@ export default class WaveGraph {
 			// create xaxisG
 			this.xaxis = d3.axisTop(xaxisScale)
 				.tickFormat(
-					create_time_formater_for_time_range(this.sizes.row.range)
+					create_time_formatter_for_time_range(this.sizes.row.range)
 				);
 			this.xaxisG = this.g.append("g")
 				.attr("class", "axis axis-x")
@@ -249,11 +250,11 @@ export default class WaveGraph {
 					for (var i = 0; i < graph.rowRenderers.length; i++) {
 						var renderer = graph.rowRenderers[i];
 						if (renderer.select(signalType)) {
-							var formater = SCALAR_FORMAT.UINT_HEX;
+							var formatter = SCALAR_FORMAT.UINT_HEX;
 							if (renderer instanceof RowRendererEnum) {
-								formater = (d) => { return d; };
+								formatter = (d) => { return d; };
 							}
-							renderer.render(parent, data, signalType, formater);
+							renderer.render(parent, data, signalType, formatter);
 							rendererFound = true;
 							break;
 						}
