@@ -10,7 +10,7 @@
     "pretest": "npm run build",
     "test": "NODE_ENV=development jest",
     "coveralls": "NODE_ENV=development jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
-    "lint": "eslint src test --ignore-pattern tests/coverage*"
+    "lint": "eslint --fix --ignore-pattern tests/coverage* src/**/*.js tests/**/*.js"
   },
   "repository": {
     "type": "git",
@@ -35,22 +35,15 @@
   },
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.13.1",
+    "@fortawesome/free-solid-svg-icons": "^5.13.1",
     "d3": "latest"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^8.4.0",
     "@babel/preset-env": "latest",
     "@babel/preset-flow": "latest",
     "coveralls": "latest",
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb": "latest",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.13.0",
-    "eslint-plugin-jsx-a11y": "^6.3.1",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.8.0",
-    "eslint-plugin-react": "^7.9.1",
-    "eslint-plugin-standard": "^3.1.0",
+    "eslint": "^7.4.0",
     "jest": "latest",
     "rollup": "latest"
   },
