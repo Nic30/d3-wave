@@ -6,7 +6,7 @@ export const TIME_UNITS = [
 	[1000000000000, "s"],
 ];
 
-export function create_time_formater(divider, unit_name) {
+export function create_time_formatter(divider, unit_name) {
 	return function(d) {
 		var v = d / divider;
 		if (Number.isInteger(v)) {
@@ -17,7 +17,7 @@ export function create_time_formater(divider, unit_name) {
 	}
 }
 
-export function create_time_formater_for_time_range(time_range) {
+export function create_time_formatter_for_time_range(time_range) {
    	time_range = time_range[1] - time_range[0];
 	var time_unit = null;
     for (var i = 0; i < TIME_UNITS.length; i++) {
@@ -27,5 +27,5 @@ export function create_time_formater_for_time_range(time_range) {
     		break;
     	}
     }
-    return create_time_formater(time_unit[0], time_unit[1]);
+    return create_time_formatter(time_unit[0], time_unit[1]);
 }

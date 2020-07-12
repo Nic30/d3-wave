@@ -7,4 +7,4 @@ import {RowRendererLabel} from "./src/rowRenderers/label.js";
 import {RowRendererStruct} from "./src/rowRenderers/struct.js";
 import {SCALAR_FORMAT} from "./src/numFormat.js";
 import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from "./src/signalLabelManipulation.js";
-import {create_time_formater_for_time_range} from "./src/timeFormat.js"
+import {create_time_formatter_for_time_range} from "./src/timeFormat.js"
