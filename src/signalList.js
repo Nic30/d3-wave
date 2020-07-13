@@ -1,6 +1,9 @@
-import * as d3 from 'd3';
-import { scrollbar } from './scrollbar.js';
-import { signalLabelManipulationRegisterHandlers, signalLabelManipulation } from './signalLabelManipulation.js';
+import {select, event} from 'd3-selection';
+import {hierarchy} from 'd3-hierarchy';
+const d3 = {select, event, hierarchy};
+
+import {scrollbar} from './scrollbar.js';
+import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from './signalLabelManipulation.js';
 
 export function treelist (barHeight) {
     // duration = 0,

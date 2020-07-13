@@ -1,5 +1,6 @@
-import * as d3 from 'd3';
 import { RowRendererBase } from './base.js';
+import {shape, line, curveStepAfter} from 'd3-shape';
+const d3 = {shape, curveStepAfter, line};
 
 export class RowRendererBit extends RowRendererBase {
     select (typeInfo) {
