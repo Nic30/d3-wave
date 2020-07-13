@@ -40,7 +40,7 @@
     "d3-drag": "latest",
     "d3-hierarchy": "latest",
     "d3-scale": "latest",
-    "d3-selectio": "latest",
+    "d3-selection": "latest",
     "d3-shape": "latest",
     "d3-zoom": "latest"
   },
