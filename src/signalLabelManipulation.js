@@ -1,7 +1,4 @@
-import {select, event} from 'd3-selection';
-import {drag} from 'd3-drag';
-const d3 = {select, event, drag};
-
+import * as d3 from 'd3';
 
 export function signalLabelManipulationRegisterHandlers (rootElm, signalList) {
     rootElm.on('focus', function () {

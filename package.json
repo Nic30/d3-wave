@@ -36,18 +36,12 @@
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.13.1",
-    "d3-axis": "latest",
-    "d3-drag": "latest",
-    "d3-hierarchy": "latest",
-    "d3-scale": "latest",
-    "d3-selection": "latest",
-    "d3-shape": "latest",
-    "d3-zoom": "latest"
+    "d3": "latest"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^8.4.0",
     "@babel/preset-env": "latest",
     "@babel/preset-flow": "latest",
-    "@rollup/plugin-node-resolve": "^8.4.0",
     "coveralls": "latest",
     "eslint": "^7.4.0",
     "jest": "latest",

@@ -1,7 +1,4 @@
-import {select, event} from 'd3-selection';
-import {scaleLinear} from 'd3-scale';
-import {drag} from 'd3-drag';
-const d3 = {select, event, scaleLinear, drag};
+import * as d3 from 'd3';
 
 export function scrollbar (barHeight) {
     let selectorWidth = 20;

@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { filterDataByTime } from './filterData.js';
 import { RowRendererBit } from './rowRenderers/bit.js';
 import { RowRendererBits } from './rowRenderers/bits.js';
@@ -7,18 +8,7 @@ import { RowRendererStruct } from './rowRenderers/struct.js';
 import { SCALAR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { treelist } from './signalList.js';
-import {faQuestion, faPlus, faTrash, faRedo} from '@fortawesome/free-solid-svg-icons';
-
-import {shape, curveStepAfter} from 'd3-shape';
-import {zoom} from 'd3-zoom';
-import {select, selectAll, event, mouse} from 'd3-selection';
-import {scaleLinear} from 'd3-scale';
-import {axisTop} from 'd3-axis';
-const d3 = {
-	shape, curveStepAfter, zoom, select,
-    selectAll, event, mouse, scaleLinear, axisTop
-};
-
+import {faQuestion, faPlus, faPen, faTrash, faRedo} from '@fortawesome/free-solid-svg-icons';
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
