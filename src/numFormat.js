@@ -66,9 +66,35 @@ function genFormatter (newBase) {
     };
 }
 
+function genVectorFormatter(newBase) {
+	var itemFormat = genFormatter(newBase);
+	return function (d) {
+		if (typeof d === 'string')
+		   return itemFormat(d);
+		// @param d: [[index list], value]
+        var buff = [];
+        var indexes = d[0];
+        indexes.forEach(function (i) {
+	       buff.push("[");
+	       buff.push(i);
+           buff.push("]"); 
+        })
+        buff.push("=");
+        buff.push(itemFormat(d[1]));
+        return buff.join("");
+	}
+}
+
 export const SCALAR_FORMAT = {
     UINT_BIN: genFormatter(2),
     UINT_OCT: genFormatter(8),
     UINT_DEC: genFormatter(10),
     UINT_HEX: genFormatter(16)
+};
+
+export const VECTOR_FORMAT = {
+    UINT_BIN: genVectorFormatter(2),
+    UINT_OCT: genVectorFormatter(8),
+    UINT_DEC: genVectorFormatter(10),
+    UINT_HEX: genVectorFormatter(16)
 };

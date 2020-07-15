@@ -5,7 +5,8 @@ import { RowRendererBits } from './rowRenderers/bits.js';
 import { RowRendererEnum } from './rowRenderers/enum.js';
 import { RowRendererLabel } from './rowRenderers/label.js';
 import { RowRendererStruct } from './rowRenderers/struct.js';
-import { SCALAR_FORMAT } from './numFormat.js';
+import { RowRendererArray } from './rowRenderers/array.js';
+import { SCALAR_FORMAT, VECTOR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { treelist } from './signalList.js';
 import {faQuestion, faPlus, faTrash, faRedo} from '@fortawesome/free-solid-svg-icons';
@@ -48,7 +49,8 @@ export default class WaveGraph {
             new RowRendererBits(this),
             new RowRendererEnum(this),
             new RowRendererLabel(this),
-            new RowRendererStruct(this)
+            new RowRendererStruct(this),
+            new RowRendererArray(this),
         ];
         this.draggedElem = null;
         this.setSizes();
@@ -292,6 +294,8 @@ export default class WaveGraph {
                             var formatter = SCALAR_FORMAT.UINT_HEX;
                             if (renderer instanceof RowRendererEnum) {
                                 formatter = (d) => { return d; };
+                            } else if (renderer instanceof RowRendererArray) {
+	                            formatter = VECTOR_FORMAT.UINT_HEX;
                             }
                             renderer.render(parent, data, signalType, formatter);
                             rendererFound = true;
