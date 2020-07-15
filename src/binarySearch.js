@@ -31,5 +31,5 @@ export function binarySearch (ar, el, compareFn, boundaryCheckFn) {
             return k;
         }
     }
-    return -m - 1;
+    return m - 1;
 }

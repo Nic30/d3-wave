@@ -12,7 +12,9 @@ export function filterDataByTime(data, rowRange) {
 		if (el[0] > ar[ar.length - 1][0]) { return ar.length; }
 		return -1;
 	}
-	for (var i = binarySearch(data, [min,], (a, b) => a - b, boundaryCheckFn); i < data.length; i++) {
+	for (var i = binarySearch(data, [min,], (a, b) => { return a[0] - b[0]; }, boundaryCheckFn); i < data.length; i++) {
+		if (i < 0)
+		    break;
 		var d = data[i];
 		var t = d[0];
 
