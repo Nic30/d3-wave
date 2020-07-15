@@ -8,7 +8,7 @@ import { RowRendererStruct } from './rowRenderers/struct.js';
 import { SCALAR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { treelist } from './signalList.js';
-import {faQuestion, faPlus, faPen, faTrash, faRedo} from '@fortawesome/free-solid-svg-icons';
+import {faQuestion, faPlus, faTrash, faRedo} from '@fortawesome/free-solid-svg-icons';
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
