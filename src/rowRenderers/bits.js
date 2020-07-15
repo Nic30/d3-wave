@@ -29,7 +29,6 @@ export class RowRendererBits extends RowRendererBase {
                 return 'value-rect value-rect-valid';
             } 
             return 'value-rect value-rect-invalid';
-      
         });
 
         // can not use index from d function because it is always 0
