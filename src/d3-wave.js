@@ -260,7 +260,7 @@ export default class WaveGraph {
 		// drawWaveLabels
 		this.waveRowY = d3.scaleLinear()
 			.domain([0, 1])
-			.range([0, sizes.row.height]);
+			.range([sizes.row.height, 0]);
 		// y axis
 		if (!this.yaxisG) {
 			// this.yaxisG.remove();
