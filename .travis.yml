@@ -9,9 +9,7 @@ node_js:
 - '10'
 install:
 - npm install
-# for deploy
-- npm install rollup -g 
-# for build, test and coveralls
+- npm install rollup -g
 - travis_wait 20 npm install --only=dev
 script:
 - npm run coveralls
@@ -22,5 +20,4 @@ deploy:
     tags: true
     branch: master
   api_key:
-    secure: JdiKKAVTTdOk5o3P/NFVZuyJpHoJM9eO0r/cnaa3LDCChnrsdZ3uakjGmJcccvw+XHvK1tXAUkq6m/+M6WvnzGXd4wrOCoTfN17xKHIKuZS5H29OvdztzZU2tcfuogX948tStSg6RFgWQWiVSSl575WLY1pqYvwEtKlUG9X7RQ+hHrvhz/zvxPh26Hl6agkDv4tttS+jHBknbpBD9i3iM6DCVJ9nSoNGkhjTIEesCMllz4eVtOtoC13kdIsGRAl1f20EfqIRsvKYEW4E9xaGXx/s+XLq1J68r4Qtq3zM207EaJttFk0nQZ7RKgoduHhlh1xyexqOOppPnHnVkyqttm35gBE3q68lcmAnZdfvhKRXnpeUvr6r4YOdEG1vitJX1blt+4+Vd34RYxylelVisoDojw6nM50ytiaBnhlnXMOVW3X5c7URf61vSQJKx7hOq4/48pB1FFZ3phg/ts/J8J7sncUE1eTHDHR5JUrP3X0xStpkUxjsue9JUyyxT1MZ3XrnQ26gRqhIa1/tXUvWKWDcxdJvSv2pw3CEwUQMh+fSvBWbWu2BYt+RdayxKK8qs6DTEPNhXHmMCgJ4pXb88/yuCR9l9Qj1iNlPzI9N9XSYmH4s4qOkKJxhMArdSzjWaYAe+QNp+LfGP17xLE5RTDH49L+iXboxihhKXQQ+0Co=
-
+    secure: Ad41N92Qw/Iyj9u+gkLvTXF79ETvxay7kY3ZRAKI/hmLUKvggaZhrbxgWdTuWqcUQKESZhZ/jPZYgiqIlcyUrwfLWOPqusurw5GqZaNB6VI3MrkK9otHWu6C0XkQAqYYyZ+EtDS9M8vMSCbq0AYMsDkPdqcHg3iSXoqeVigvyo5RJwkvxbNzXWgF6QZILqAElcay4XC/8xioqWrm6onesLc/8A2Dkz2H3zES3A0c9fhK895HOYmO787RNJNg1sREDBPSJohbOLk3B6nxMkR2FtaH4hPm3ooyRu6wEI5vJG71W+SYZ4tLSnDt1dmAXwRwtkZqMuQtJuO9JrpxZxzhSowzOI5uHjb0Mf+FascPIB3gjgq6T0bEH4uZjhg8lc1iWbbgahyqLmSQQ7ePPiB55P7kPCGGQQEFMMKFkfPeCtEHWz7jHPJ9L3zGqJ/A8d+mLPHPnxpSIE9bPr6slLysYXqL59V190HhxqHWrV9ZzvbuilugA+ND67u54gpYLLhxAIZk8MLNtSnRYIaUyQqqZKcbmQ0YDEw1SUfhqer/yfjhJfABgi+rrP65kU48qIUW+JdDlThr1XKxv90dXYEx2j84EllOhoTlvNb/LGfWHRQIcoSBWyRnOLuLz6BHKO6dIkaaKR6jtffzfI6MNWpLe5aj1+WsanwXDC3qu2iVu/A=
