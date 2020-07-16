@@ -93,7 +93,8 @@ export function scrollbar (barHeight) {
     };
     _scrollbar.registerWheel = function (elm) {
         elm.on('wheel', function () {
-            var step = d3.event.wheelDeltaY < 0 ? 1 : -1;
+            var step = d3.event.deltaY > 0 ? 1 : -1;
+            d3.event.stopPropagation();
             var y = parseInt(moverElm.attr('y'));
             var ny = Math.max(0, y + barHeight * step);
             var h = parseInt(moverElm.attr('height'));
@@ -124,7 +125,9 @@ export function scrollbar (barHeight) {
             // redraw on size change
             _scrollbar(scrollbarG);
         }
-        if (onDrag) { onDrag(startPerc); }
+        if (onDrag) { 
+	        onDrag(startPerc);
+	    }
         return _scrollbar;
     };
     _scrollbar.isScrollDisplayed = function () {

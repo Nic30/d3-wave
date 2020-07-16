@@ -19,7 +19,6 @@ export function treelist (barHeight) {
     //    .ease(d3.easeLinear);
 
     var _treelist = function (_rootElm) {
-    // signalLabelManipulationRegisterHandlers(this);
         rootElm = _rootElm;
         labelG = _rootElm.append('g');
         var flatenedData = [];
@@ -56,10 +55,8 @@ export function treelist (barHeight) {
             childrenGetter = function (d) { return d.children; };
         }
         root = d3.hierarchy(_data, childrenGetter);
-        root.x0 = 0;
-        root.y0 = 0;
         // Compute the flattened node list.
-        root.count();
+        root.sum(() => 1);
 
         if (rootElm) {
             _treelist.update();
@@ -148,8 +145,8 @@ export function treelist (barHeight) {
         nodeEnter.append('path')
             .attr('transform', 'translate(0,' + -(barHeight / 2) + ')')
             .attr('d', function (d) {
-                if (d.data.type.name === 'struct') {
-                    if (d.children != null) {
+                if (d.children || d._children) {
+                    if (d.data.children != null) {
                         // Chevron down https://icons.getbootstrap.com/icons/chevron-down/
                         return 'M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z';
                     } 
@@ -164,7 +161,7 @@ export function treelist (barHeight) {
 
         // background for expand arrow
         nodeEnter.append('rect')
-            .classed('expandable', true)
+            .classed('expandable', (d) => d.children || d._children)
             .attr('width', barHeight / 2)
             .attr('height', barHeight)
             .attr('transform', 'translate(0,' + -(barHeight / 2) + ')')
@@ -177,8 +174,8 @@ export function treelist (barHeight) {
             .attr('dx', 15)
             .text((d) => d.data.name);
         nodeEnter.on('mouseover', function () {
-            d3.select(this).classed('highlight', true);
-        })
+                d3.select(this).classed('highlight', true);
+            })
             .on('mouseout', function () {
                 nodeEnter.classed('highlight', false);
             });

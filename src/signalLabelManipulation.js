@@ -56,6 +56,7 @@ export function signalLabelManipulation (signalList, labels, ROW_Y) {
         d3.select(this).raise();
         // d = index of clicked signal
         var current = d;
+        var currentlySelected = current.data.type.selected;
         var shiftKey = d3.event.shiftKey || d3.event.sourceEvent.shiftKey;
         if (shiftKey && previouslyClicked != null) {
             // select all between last selected and clicked
@@ -74,11 +75,11 @@ export function signalLabelManipulation (signalList, labels, ROW_Y) {
         var altKey = d3.event.altKey || d3.event.sourceEvent.altKey;
         if (!altKey) {
             signalList.visibleNodes().forEach(function (d) {
-                if (current !== d) { d.data.type.selected = false; }
+               d.data.type.selected = false;
             });
         }
         // toggle selection
-        current.data.type.selected = !current.data.type.selected;
+        current.data.type.selected = !currentlySelected;
         // el.raise().classed("selected", isselected);
         labels.classed('selected', (d) => d.data.type.selected);
     }
