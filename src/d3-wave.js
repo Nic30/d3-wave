@@ -10,6 +10,7 @@ import { SCALAR_FORMAT, VECTOR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { treelist } from './signalList.js';
 import { faQuestion, faPlus, faTrash, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { DragBarVertical } from './dragBar.js';
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
@@ -38,6 +39,7 @@ export default class WaveGraph {
 				bottom: 20,
 				left: 180
 			},
+			dragWidth: 5,
 			width: -1,
 			height: -1
 		};
@@ -53,6 +55,7 @@ export default class WaveGraph {
 			new RowRendererArray(this),
 		];
 		this.draggedElem = null;
+		this.labelAreaSizeDragBar = null;
 		this.setSizes();
 	}
 
@@ -111,10 +114,11 @@ export default class WaveGraph {
 		this.g.attr('transform',
 			'translate(' + s.margin.left + ',' + s.margin.top + ')');
 
-		var ROW_Y = s.row.height + s.row.ypadding;
 		if (this.treelist) {
 			this.treelist.size(s.margin.left, s.height);
 		}
+		if (this.labelAreaSizeDragBar)
+		    this.labelAreaSizeDragBar.size(s.dragWidth, s.height);
 	}
 
 	drawYHelpLine() {
@@ -270,6 +274,18 @@ export default class WaveGraph {
 				'translate(0,' + (sizes.margin.top + ROW_Y / 2) + ')');
 			this.drawControlIcons();
 		}
+		if (!this.labelAreaSizeDragBar) {
+			var graph = this;
+		    this.labelAreaSizeDragBar = new DragBarVertical(
+			        this.svg,
+                    [sizes.dragWidth, sizes.height],
+                    [0, sizes.width + sizes.margin.left],
+                    [sizes.margin.left, sizes.margin.top]
+            ).onDrag(function (d) {
+	              sizes.margin.left = d.x;
+                  graph.setSizes();
+            });
+        }
 	}
 	// draw whole graph
 	draw() {
@@ -303,16 +319,19 @@ export default class WaveGraph {
 						if (renderer.select(signalType)) {
 							var fName = signalType.formatter;
 							var formatter = (d) => { return d; };
-							if (renderer instanceof RowRendererBits) {
-		                        if (!fName) {
-                                    fName = "UINT_HEX";
-                                }
-		                        formatter = SCALAR_FORMAT[fName];
-							} else if (renderer instanceof RowRendererArray) {
+							if (renderer instanceof RowRendererArray) {
 		                        if (!fName) {
                                     fName = "UINT_HEX";
                                 }
 								formatter = VECTOR_FORMAT[fName];
+							} else if (renderer instanceof RowRendererBits) {
+		                        if (!fName) {
+                                    fName = "UINT_HEX";
+                                }
+		                        formatter = SCALAR_FORMAT[fName];
+							}
+							if (!formatter) {
+								throw new Error("Invalid formater " + fName);
 							}
 							renderer.render(parent, data, signalType, formatter);
 							rendererFound = true;
