@@ -301,11 +301,18 @@ export default class WaveGraph {
 					for (var i = 0; i < graph.rowRenderers.length; i++) {
 						var renderer = graph.rowRenderers[i];
 						if (renderer.select(signalType)) {
-							var formatter = SCALAR_FORMAT.UINT_HEX;
-							if (renderer instanceof RowRendererEnum) {
-								formatter = (d) => { return d; };
+							var fName = signalType.formatter;
+							var formatter = (d) => { return d; };
+							if (renderer instanceof RowRendererBits) {
+		                        if (!fName) {
+                                    fName = "UINT_HEX";
+                                }
+		                        formatter = SCALAR_FORMAT[fName];
 							} else if (renderer instanceof RowRendererArray) {
-								formatter = VECTOR_FORMAT.UINT_HEX;
+		                        if (!fName) {
+                                    fName = "UINT_HEX";
+                                }
+								formatter = VECTOR_FORMAT[fName];
 							}
 							renderer.render(parent, data, signalType, formatter);
 							rendererFound = true;
