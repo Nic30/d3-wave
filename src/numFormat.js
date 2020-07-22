@@ -1,3 +1,4 @@
+"use strict";
 
 const NUM_FORMATS = {
     'b': 2,

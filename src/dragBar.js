@@ -1,3 +1,5 @@
+"use strict";
+
 import * as d3 from 'd3';
 
 // http://bl.ocks.org/mccannf/1629464

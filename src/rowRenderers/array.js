@@ -1,3 +1,5 @@
+"use strict";
+
 import { RowRendererBits } from './bits.js';
 
 export class RowRendererArray extends RowRendererBits {

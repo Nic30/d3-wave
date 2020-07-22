@@ -1,3 +1,5 @@
+"use strict";
+
 import { binarySearch } from './binarySearch.js'
 
 export function filterDataByTime(data, rowRange) {

@@ -1,3 +1,5 @@
+"use strict";
+
 export const TIME_UNITS = [
     [1, 'ps'],
     [1000, 'ns'],

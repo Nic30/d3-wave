@@ -1,3 +1,5 @@
+"use strict";
+
 import * as d3 from 'd3';
 import WaveGraph from '../src/d3-wave';
 import * as fs from 'fs';

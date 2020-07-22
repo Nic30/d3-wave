@@ -1,3 +1,5 @@
+"use strict";
+
 import * as d3 from 'd3';
 import { filterDataByTime } from './filterData.js';
 import { RowRendererBit } from './rowRenderers/bit.js';

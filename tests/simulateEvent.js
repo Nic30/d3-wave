@@ -1,3 +1,5 @@
+"use strict";
+
 
 export function simulateEvent(element, eventName, eventData) {
 	if (eventName === 'drag') {
