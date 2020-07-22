@@ -1,6 +1,6 @@
 {
   "name": "d3-wave",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "D3.js signal wave visualizer",
   "main": "dist/d3-wave.js",
   "scripts": {
