@@ -3,6 +3,7 @@
 import * as d3 from 'd3';
 import { scrollbar } from './scrollbar.js';
 import { SignalLabelManipulation } from './signalLabelManipulation.js';
+import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 export function treelist (barHeight) {
     let root;
@@ -153,16 +154,14 @@ export function treelist (barHeight) {
 
         // adding arrows
         nodeEnter.append('path')
-            .attr('transform', 'translate(0,' + -(barHeight / 2) + ')')
+            .attr('transform', 'translate(0,' + -(barHeight / 2) + ')' +' scale(' + (barHeight / faChevronDown.icon[1] * 0.5) + ')')
             .attr('d', function (d) {
                 if (d.children || d._children) {
+	                var ico = faChevronRight;
                     if (d.data.children != null) {
-                        // Chevron down https://icons.getbootstrap.com/icons/chevron-down/
-                        return 'M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z';
+                        ico = faChevronDown;
                     } 
-                    // Chevron right https://icons.getbootstrap.com/icons/chevron-right/
-                    return 'M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z';
-          
+                    return ico.icon[4];
                 } 
                 return '';
             })
