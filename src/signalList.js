@@ -1,9 +1,10 @@
+"use strict";
+
 import * as d3 from 'd3';
 import { scrollbar } from './scrollbar.js';
-import { signalLabelManipulationRegisterHandlers, signalLabelManipulation } from './signalLabelManipulation.js';
+import { SignalLabelManipulation } from './signalLabelManipulation.js';
 
 export function treelist (barHeight) {
-    // duration = 0,
     let root;
     let rootElm;
     let labelG;
@@ -13,10 +14,7 @@ export function treelist (barHeight) {
     let height;
     let onChange;
     let nodes = [];
-
-    // let nodeEnterTransition = d3.transition()
-    //    .duration(duration)
-    //    .ease(d3.easeLinear);
+	let labelMoving = null;
 
     var _treelist = function (_rootElm) {
         rootElm = _rootElm;
@@ -37,9 +35,11 @@ export function treelist (barHeight) {
         scrollbarG = rootElm.append('g')
             .attr('class', 'scrollbar');
         scrollbarG.call(scroll);
-        signalLabelManipulationRegisterHandlers(rootElm, _treelist);
+        labelMoving.registerHandlers(rootElm);
         scroll.registerWheel(rootElm);
     };
+    labelMoving = new SignalLabelManipulation(barHeight, _treelist);
+
     _treelist.size = function (_width, _height) {
         if (!arguments.length) { return [width, height]; }
         width = _width;
@@ -57,6 +57,10 @@ export function treelist (barHeight) {
         root = d3.hierarchy(_data, childrenGetter);
         // Compute the flattened node list.
         root.sum(() => 1);
+        var i = 0;
+        root.eachBefore((n) => {
+            n.id = i++;
+        });
 
         if (rootElm) {
             _treelist.update();
@@ -71,7 +75,6 @@ export function treelist (barHeight) {
             return _treelist;
         } 
         return onChange;
-    
     };
     _treelist.visibleNodes = function () {
         return nodes;
@@ -98,7 +101,7 @@ export function treelist (barHeight) {
         }
     };
     function resolveSelection () {
-    // Compute the flattened node list.
+        // Compute the flattened node list.
         var nodeTotalCnt = root.value;
         var scrollPerc = scroll ? scroll.startPerc() : 0;
         var start = Math.round(scrollPerc * nodeTotalCnt);
@@ -107,7 +110,6 @@ export function treelist (barHeight) {
         var i = 0;
         nodes = [];
         root.eachBefore((n) => {
-            n.id = i;
             if (i >= start && i <= end) {
                 n.x = n.depth * 20;
                 n.y = ++index * barHeight;
@@ -127,7 +129,7 @@ export function treelist (barHeight) {
 
         var nodeEnter = node.enter().append('g')
             .classed('labelcell', true)
-        // .attr("transform", () => "translate(" + source.y0 + "," + source.x0 + ")") // for transition
+            // .attr("transform", () => "translate(" + source.y0 + "," + source.x0 + ")") // for transition
             .classed('selected', function (d) {
                 return d.data.type.selected;
             });
@@ -155,7 +157,6 @@ export function treelist (barHeight) {
           
                 } 
                 return '';
-        
             })
             .call(registerExpandHandler);
 
@@ -182,16 +183,15 @@ export function treelist (barHeight) {
 
         // Transition nodes to their new position.
         nodeEnter.attr('transform', (d) => 'translate(' + d.x + ',' + d.y + ')');
-
         node.attr('transform', (d) => 'translate(' + d.x + ',' + d.y + ')');
 
         node.exit()
             .remove();
 
-        signalLabelManipulation(_treelist, nodeEnter, barHeight);
         if (onChange) {
             onChange(nodes);
         }
+        labelMoving.registerDrag(labelG.selectAll('.labelcell'));
     };
     function registerExpandHandler (elm) {
         return elm.on('click', click)

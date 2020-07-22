@@ -1,3 +1,5 @@
+"use strict";
+
 import * as d3 from 'd3';
 import WaveGraph from '../src/d3-wave';
 import * as fs from 'fs';
@@ -43,7 +45,15 @@ describe('Testing signal label select, drag and zoom', function() {
 	var allLabels = [];
 	var labelsWithChildren = [];
 	collectLabels(signalData, 0, expectedLabelCnt, allLabels, labelsWithChildren);
-
+    function getLabels() {
+	    return svg.selectAll(".labelcell")
+	    	      .sort((a, b) => d3.ascending(a.y, b.y))
+    }
+    function selectLabelByName(name) {
+    	var n = getLabels().filter((d) => d.data.name === name).node();
+    	expect(n).toBeDefined();
+    	return n;
+    }
 	it('SVG has correct count of labels', () => {
 		expect(wave.data.length).toBe(expectedLabelCnt);
 		var labels = getVisibleLabels(svg);
@@ -70,6 +80,25 @@ describe('Testing signal label select, drag and zoom', function() {
 			.sort((a, b) => d3.ascending(a.y, b.y))
 			.map((d) => d.data.name);
 		expect(labels).toStrictEqual(allLabels);
+	});
+	it('can collapse and expand non root', () => {
+		var rootExpandIcon = svg.selectAll(".labelcell .expandable")
+		    .filter((d) => d.data.name === 'dataIn')
+            .node();
+		simulateEvent(rootExpandIcon, 'click', {});
+		var labels = getVisibleLabels(svg);
+		expect(labels).toContain('dataIn');
+		expect(labels).not.toContain('dataIn_en');
+		expect(labels).not.toContain('dataIn_data');
+		expect(labels).not.toContain('dataIn_wait');
+		
+		simulateEvent(rootExpandIcon, 'click', {});
+		var labels = svg.selectAll(".labelcell text")
+			.data()
+			.sort((a, b) => d3.ascending(a.y, b.y))
+			.map((d) => d.data.name);
+		expect(labels).toStrictEqual(allLabels);
+		expect(svg.selectAll(".labelcell.selected").size()).toBe(0)
 	});
 	it('can scroll down and up using wheel', () => {
 		var labelsG = svg.select(".axis.axis-y").node();
@@ -123,11 +152,8 @@ describe('Testing signal label select, drag and zoom', function() {
 		wave.draw();
 		checkScrollbar(500)
 	});
-
-
 	it('can select/deselect by click', () => {
-        var labels = svg.selectAll(".labelcell")
-	    	.sort((a, b) => d3.ascending(a.y, b.y));
+        var labels = getLabels();
 	    var labelNodes = labels.nodes();
         var n = labelNodes[1];
 		simulateEvent(n, 'click', {});
@@ -139,10 +165,23 @@ describe('Testing signal label select, drag and zoom', function() {
 		simulateEvent(n, 'click', {});
 		selectedLabels = svg.selectAll(".labelcell.selected");
 		expect(selectedLabels.size()).toBe(0);
+		
+		var dataIn_en = selectLabelByName('dataIn_en');
+		var dataOut_en = selectLabelByName('dataOut_en');
+		
+		simulateEvent(dataIn_en, 'click', {});
+		simulateEvent(dataOut_en, 'click', {});
+		
+		selectedLabels = svg.selectAll(".labelcell.selected");
+		expect(selectedLabels.size()).toBe(1);
+		expect(selectedLabels.node()).toBe(dataOut_en);
+		simulateEvent(dataOut_en, 'click', {});
+		selectedLabels = svg.selectAll(".labelcell.selected");
+		expect(selectedLabels.size()).toBe(0);
 	});
+
     it('deselect on select of other label', () => {
-	    var labels = svg.selectAll(".labelcell")
-	    	.sort((a, b) => d3.ascending(a.y, b.y));
+	    var labels = getLabels();
 	    var labelNodes = labels.nodes();
 	    var n1 = labelNodes[1];
 		var n2 = labelNodes[2];
@@ -157,8 +196,7 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(selectedLabels.size()).toBe(0);
     });
     it('select range using shift key', () => {
-	    var labels = svg.selectAll(".labelcell")
-	    	.sort((a, b) => d3.ascending(a.y, b.y));
+	    var labels = getLabels();
 	    var labelNodes = labels.nodes();
 		simulateEvent(labelNodes[1], 'click', {'shiftKey': true});
 		simulateEvent(labelNodes[4], 'click', {'shiftKey': true});
@@ -167,8 +205,6 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(selectedLabels.size()).toBe(4);
 		var sn = selectedLabels.nodes();
 		for (var i = 0; i < sn.length; i ++) {
-			// console.log(sn[i]);
-			// console.log(labelNodes[i +1]);
 		    expect(sn[i]).toBe(labelNodes[i +1]);
 		}
 		simulateEvent(labelNodes[4], 'click', {});
@@ -182,8 +218,6 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(selectedLabels.size()).toBe(4);
 		sn = selectedLabels.nodes();
 		for (var i = 0; i < sn.length; i ++) {
-			// console.log(sn[i]);
-			// console.log(labelNodes[i +1]);
 		    expect(sn[i]).toBe(labelNodes[i +1]);
 		}
     });

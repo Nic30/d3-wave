@@ -2,7 +2,7 @@ import {RowRendererEnum} from './src/rowRenderers/enum.js'
 import {RowRendererLabel} from './src/rowRenderers/label.js'
 import {RowRendererStruct} from './src/rowRenderers/struct.js'
 import {SCALAR_FORMAT} from './src/numFormat.js'
-import {signalLabelManipulationRegisterHandlers, signalLabelManipulation} from './src/signalLabelManipulation.js'
+import {SignalLabelManipulation} from './src/signalLabelManipulation.js';
 import {createTimeFormatterForTimeRange} from './src/timeFormat.js'
 export {default as WaveGraph} from './src/d3-wave.js'
 export {filterDataByTime} from './src/filterData.js'
