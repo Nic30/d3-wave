@@ -39,8 +39,8 @@
 	fill: white;
 }
 
-#wave-graph {
-	background: black;
+.wave-graph {
+	background-color: black;
 	width: 100%;
 	height: 100%;
 	position: fixed;

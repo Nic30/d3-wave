@@ -11,8 +11,9 @@ import { RowRendererArray } from './rowRenderers/array.js';
 import { SCALAR_FORMAT, VECTOR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { treelist } from './signalList.js';
-import { faQuestion, faPlus, faTrash, faRedo } from '@fortawesome/free-solid-svg-icons';
+import { faQuestion, faPlus, faTrash, faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar.js';
+import { exportStyledSvgToBlob } from './exportSvg.js'
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
@@ -120,7 +121,7 @@ export default class WaveGraph {
 			this.treelist.size(s.margin.left, s.height);
 		}
 		if (this.labelAreaSizeDragBar)
-		    this.labelAreaSizeDragBar.size(s.dragWidth, s.height);
+			this.labelAreaSizeDragBar.size(s.dragWidth, s.height);
 	}
 
 	drawYHelpLine() {
@@ -209,41 +210,60 @@ export default class WaveGraph {
 		}
 	}
 	drawControlIcons() {
+		var _this = this;
 		var sizes = this.sizes;
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		// Define the div for the tooltip
-		var div = d3.select('body').append('div')
+		var tooltipDiv = d3.select('body').append('div')
 			.attr('class', 'tooltip')
 			.style('opacity', 0);
 		var icons = [
 			{
 				'icon': faQuestion,
-				'onmouseover': function() {
-					div.transition()
-						.duration(200)
-						.style('opacity', 0.9);
-					div.html('tooltip fwampogmwarpo')
-						.style('left', (d3.event.pageX) + 'px')
-						.style('top', (d3.event.pageY - 28) + 'px');
-				},
-				'onmouseout': function() {
-					div.transition()
-						.duration(500)
-						.style('opacity', 0);
-				}
+				'tooltip': 'd3-wave help placeholder[TODO]',
 			},
-			{ 'icon': faPlus },
+			{
+				'icon': faPlus,
+				'tooltip': 'Add signals to trace',
+			},
 			{ 'icon': faRedo },
-			{ 'icon': faTrash }];
+			{
+				'icon': faTrash,
+				'tooltip': 'Remove selected from trace',
+			},
+			{
+				'icon': faDownload,
+				'tooltip': 'Download current screen as SVG image',
+				'onclick': function() {
+					var svg = exportStyledSvgToBlob(_this.svg.node());
+					var url = URL.createObjectURL(svg);
+					window.open(url);
+				}
+			}];
+		function addTooltip(d, tootipHtml) {
+			d['onmouseover'] = function() {
+				tooltipDiv.transition()
+					.duration(200)
+					.style('opacity', 0.9);
+				tooltipDiv.html(tootipHtml)
+					.style('left', (d3.event.pageX) + 'px')
+					.style('top', (d3.event.pageY - 28) + 'px');
+			}
+			d['onmouseout'] = function() {
+				tooltipDiv.transition()
+					.duration(500)
+					.style('opacity', 0);
+			}
+		}
+		icons.forEach((d) => {
+			if (d.tooltip) {
+				addTooltip(d, d.tooltip)
+			}
+		});
 		this.yaxisG.selectAll('text').data(icons).enter()
 			.append("g")
 			.attr("transform", function(d, i) {
 				return 'translate(' + (i * ROW_Y) + ',' + (-ROW_Y * 1) + ') scale(' + (ROW_Y / d.icon.icon[1] * 0.5) + ')';
-			})
-			.append('path')
-			.classed('icons', true)
-			.attr('d', function(d) {
-				return d.icon.icon[4];
 			})
 			.on('mouseover', function(d) {
 				if (d.onmouseover) {
@@ -256,9 +276,19 @@ export default class WaveGraph {
 					return d.onmouseout();
 				}
 				return null;
+			}).on('click', function(d) {
+				if (d.onclick) {
+					return d.onclick();
+				}
+				return null;
+			})
+			.append('path')
+			.classed('icons', true)
+			.attr('d', function(d) {
+				return d.icon.icon[4];
 			});
-	    if (this.treelist)
-		    this.yaxisG.call(this.treelist);
+		if (this.treelist)
+			this.yaxisG.call(this.treelist);
 	}
 	drawYAxis() {
 		var sizes = this.sizes;
@@ -278,16 +308,16 @@ export default class WaveGraph {
 		}
 		if (!this.labelAreaSizeDragBar) {
 			var graph = this;
-		    this.labelAreaSizeDragBar = new DragBarVertical(
-			        this.svg,
-                    [sizes.dragWidth, sizes.height],
-                    [0, sizes.width + sizes.margin.left],
-                    [sizes.margin.left, sizes.margin.top]
-            ).onDrag(function (d) {
-	              sizes.margin.left = d.x;
-                  graph.setSizes();
-            });
-        }
+			this.labelAreaSizeDragBar = new DragBarVertical(
+				this.svg,
+				[sizes.dragWidth, sizes.height],
+				[0, sizes.width + sizes.margin.left],
+				[sizes.margin.left, sizes.margin.top]
+			).onDrag(function(d) {
+				sizes.margin.left = d.x;
+				graph.setSizes();
+			});
+		}
 	}
 	// draw whole graph
 	draw() {
@@ -322,15 +352,15 @@ export default class WaveGraph {
 							var fName = signalType.formatter;
 							var formatter = (d) => { return d; };
 							if (renderer instanceof RowRendererArray) {
-		                        if (!fName) {
-                                    fName = "UINT_HEX";
-                                }
+								if (!fName) {
+									fName = "UINT_HEX";
+								}
 								formatter = VECTOR_FORMAT[fName];
 							} else if (renderer instanceof RowRendererBits) {
-		                        if (!fName) {
-                                    fName = "UINT_HEX";
-                                }
-		                        formatter = SCALAR_FORMAT[fName];
+								if (!fName) {
+									fName = "UINT_HEX";
+								}
+								formatter = SCALAR_FORMAT[fName];
 							}
 							if (!formatter) {
 								throw new Error("Invalid formater " + fName);
@@ -380,9 +410,9 @@ export default class WaveGraph {
 		this.treelist = treelist(ROW_Y)
 			.size(sizes.margin.left, sizes.height)
 			.data(this.allData)
-			.onChange(function (selection) {
-			    graph.data = selection.map((d) => { return d.data; });
-			    graph.draw();
+			.onChange(function(selection) {
+				graph.data = selection.map((d) => { return d.data; });
+				graph.draw();
 			});
 		this.treelist.data(this.allData);
 		this.setSizes();

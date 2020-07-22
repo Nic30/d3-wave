@@ -7,7 +7,7 @@
   <script type="text/javascript" src="../node_modules/@fortawesome/free-solid-svg-icons/index.js"></script>
   <script type="text/javascript" src="../dist/d3-wave.js"></script>
   <style type="text/css">
-  #wave-graph {
+  .wave-graph {
   	height: 80%;
   	top: 80px;
   };
@@ -20,7 +20,7 @@
 	
 	<script type="text/javascript">
 	// script with instanciation of the graph
-	var svg = d3.select("#wave-graph");
+	var svg = d3.select("#wave-graph").classed('wave-graph', true);
 	var waveGraph = new d3.WaveGraph(svg);
 
 	function draw(signalData) {
