@@ -42,7 +42,15 @@ export function treelist (barHeight) {
 
     _treelist.size = function (_width, _height) {
         if (!arguments.length) { return [width, height]; }
-        width = _width;
+        if (labelG && width !== _width) {
+	        // udpate width on all labels
+            labelG.selectAll('.labelcell rect')
+			   .attr('width', function (d) {
+                   return _width - d.depth * 20 - barHeight / 2;
+               });
+		}
+		width = _width;
+		
         height = _height;
         if (scroll) {
             // also automatically renders also this list
