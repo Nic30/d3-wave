@@ -85,7 +85,7 @@ export class TreeList {
 		// construct scrollbar after main list in order to have in top
 		this.scrollbarG = this.rootElm.append('g')
 			.attr('class', 'scrollbar');
-		this.scrollbarG.call(scroll);
+		this.scrollbarG.call(this.scroll);
 		this.labelMoving.registerHandlers(this.rootElm);
 		this.scroll.registerWheel(this.rootElm);
 	};
