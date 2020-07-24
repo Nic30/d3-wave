@@ -5,18 +5,24 @@ import { scrollbar } from './scrollbar.js';
 import { SignalLabelManipulation } from './signalLabelManipulation.js';
 import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
-export function treelist(barHeight) {
-	let root;
-	let rootElm;
-	let labelG;
-	let scrollbarG = null;
-	let scroll;
-	let width;
-	let height;
-	let onChange;
-	let nodes = [];
-	let labelMoving = null;
-	function getExpandCollapseIcon(d) {
+export class TreeList {
+	constructor(barHeight) {
+		this.barHeight = barHeight;
+		this.root;
+		this.rootElm;
+		this.labelG;
+		this.scrollbarG = null;
+		var update = this.update.bind(this);
+		this.scroll = scrollbar(barHeight)
+			.onDrag(function() { update(); });
+
+		this.width;
+		this.height;
+		this.onChange;
+		this.nodes = [];
+		this.labelMoving = 	new SignalLabelManipulation(barHeight, this);
+	}
+	getExpandCollapseIcon(d) {
 		if (d.data.children || d.data._children) {
 			var ico = faChevronRight;
 			if (d.children != null) {
@@ -26,12 +32,13 @@ export function treelist(barHeight) {
 		}
 		return '';
 	}
-	function registerExpandHandler(elm) {
-		return elm.on('click', clickExpandCollapse)
+	registerExpandHandler(elm) {
+		var clickExpandCollapse = this.clickExpandCollapse.bind(this);
+		return elm.on('click', function(d) {clickExpandCollapse(d, elm);})
 			.on('mousedown', function() { d3.event.stopPropagation(); })
 			.on('mouseup', function() { d3.event.stopPropagation(); });
 	}
-	function clickExpandCollapse(d) {
+	clickExpandCollapse(d, elm) {
 		d3.event.stopPropagation();
 		if (d.children || d._children) {
 			if (d.children) {
@@ -41,22 +48,27 @@ export function treelist(barHeight) {
 				d.children = d._children;
 				d._children = null;
 			}
-			d3.select(this.parentElement)
+			d3.select(elm.parentElement)
 				.select('path')
-				.attr('d', getExpandCollapseIcon);
-			_treelist.update();
+				.attr('d', this.getExpandCollapseIcon);
+			this.update();
 		}
 	}
-	function resolveSelection() {
+	resolveSelection() {
 		// Compute the flattened node list.
-		var nodeTotalCnt = root.value;
-		var scrollPerc = scroll ? scroll.startPerc() : 0;
+		if (!this.root) {
+			// no data
+			return;
+		}
+		var barHeight = this.barHeight;
+		var nodeTotalCnt = this.root.value;
+		var scrollPerc = this.scroll ? this.scroll.startPerc() : 0;
 		var start = Math.round(scrollPerc * nodeTotalCnt);
-		var end = Math.min(start + height / barHeight, nodeTotalCnt);
+		var end = Math.min(start + this.height / barHeight, nodeTotalCnt);
 		var index = -1;
 		var i = 0;
-		nodes = [];
-		root.eachBefore((n) => {
+		var nodes = this.nodes = [];
+		this.root.eachBefore((n) => {
 			if (i >= start && i <= end) {
 				n.x = n.depth * 20;
 				n.y = ++index * barHeight;
@@ -64,80 +76,79 @@ export function treelist(barHeight) {
 			}
 			i++;
 		});
-	}
-
-	var _treelist = function(_rootElm) {
-		rootElm = _rootElm;
-		labelG = _rootElm.append('g');
-		var flatenedData = [];
-		var maxDepth = 0;
-		root.eachBefore(function(d) {
-			flatenedData.push(d);
-			maxDepth = Math.max(maxDepth, d.depth);
-		});
-		scroll = scrollbar(barHeight)
-			.size(width, height)
-			.data(flatenedData, maxDepth)
-			.onDrag(function() { _treelist.update(); });
-
-		_treelist.update();
-		// construct scrollbar after main list in order to have in top
-		scrollbarG = rootElm.append('g')
-			.attr('class', 'scrollbar');
-		scrollbarG.call(scroll);
-		labelMoving.registerHandlers(rootElm);
-		scroll.registerWheel(rootElm);
 	};
-	labelMoving = new SignalLabelManipulation(barHeight, _treelist);
+	draw(_rootElm) {
+		this.rootElm = _rootElm;
+		this.labelG = _rootElm.append('g');
 
-	_treelist.size = function(_width, _height) {
-		if (!arguments.length) { return [width, height]; }
-		if (labelG && width !== _width) {
+		this.update();
+		// construct scrollbar after main list in order to have in top
+		this.scrollbarG = this.rootElm.append('g')
+			.attr('class', 'scrollbar');
+		this.scrollbarG.call(scroll);
+		this.labelMoving.registerHandlers(this.rootElm);
+		this.scroll.registerWheel(this.rootElm);
+	};
+	size(_width, _height) {
+		if (!arguments.length) { return [this.width, this.height]; }
+		if (this.labelG && this.width !== _width) {
+			var barHeight = this.barHeight;
 			// udpate width on all labels
-			labelG.selectAll('.labelcell rect')
+			this.labelG.selectAll('.labelcell rect')
 				.attr('width', function(d) {
 					return _width - d.depth * 20 - barHeight / 2;
 				});
 		}
-		width = _width;
-
-		height = _height;
-		if (scroll) {
+		this.width = _width;
+		this.height = _height;
+		if (this.scroll) {
 			// also automatically renders also this list
-			scroll.size(width, height);
+			this.scroll.size(this.width, this.height);
 		}
-		return _treelist;
+		return this;
 	};
-	_treelist.data = function(_data, childrenGetter) {
+	data(_data, childrenGetter) {
 		if (childrenGetter === undefined) {
-			childrenGetter = function(d) { return d.children; };
+			this.childrenGetter = function(d) { return d.children; };
 		}
-		root = d3.hierarchy(_data, childrenGetter);
+		this.root = d3.hierarchy(_data, childrenGetter);
 		// Compute the flattened node list.
-		root.sum(() => 1);
+		this.root.sum(() => 1);
 		var i = 0;
-		root.eachBefore((n) => {
+		this.root.eachBefore((n) => {
 			n.id = i++;
 		});
-
-		if (rootElm) {
-			_treelist.update();
+		var flatenedData = [];
+		var maxDepth = 0;
+		this.root.eachBefore(function(d) {
+			flatenedData.push(d);
+			maxDepth = Math.max(maxDepth, d.depth);
+		});
+		this.scroll.data(flatenedData, maxDepth);
+		
+		if (this.rootElm) {
+			if (this.labelG)
+				this.labelG.selectAll('.labelcell').remove();
+			this.update();
 		} else {
-			resolveSelection();
+			this.resolveSelection();
+			if (this._onChange) {
+				this._onChange(this.nodes);
+			}
 		}
-		return _treelist;
+		return this;
 	};
-	_treelist.onChange = function(fn) {
+	onChange(fn) {
 		if (arguments.length) {
-			onChange = fn;
-			return _treelist;
+			this._onChange = fn;
+			return this;
 		}
-		return onChange;
+		return this._onChange;
 	};
-	_treelist.visibleNodes = function() {
-		return nodes;
+	visibleNodes() {
+		return this.nodes;
 	};
-	_treelist.filter = function(predicate) {
+	filter(predicate) {
 		function remove(d) {
 			if (d.parent) {
 				const index = d.parent.children.indexOf(5);
@@ -148,22 +159,23 @@ export function treelist(barHeight) {
 			}
 		}
 		var updated = false;
-		root.eachBefore(function(d) {
+		this.root.eachBefore(function(d) {
 			if (!predicate(d.data)) {
 				remove(d);
 				updated = true;
 			}
 		});
 		if (updated) {
-			_treelist.update();
+			this.update();
 		}
 	};
-	_treelist.update = function() {
-		resolveSelection();
-
+	update() {
+		this.resolveSelection();
+		if (!this.labelG)
+			return;
 		// Update the nodes
-		var node = labelG.selectAll('.labelcell')
-			.data(nodes, (d) => {
+		var node = this.labelG.selectAll('.labelcell')
+			.data(this.nodes, (d) => {
 				return d.id;
 			});
 
@@ -174,6 +186,8 @@ export function treelist(barHeight) {
 				return d.data.type.selected;
 			});
 
+		var barHeight = this.barHeight;
+		var width = this.width;
 		// background rectangle for highlight
 		nodeEnter.append('rect')
 			.attr('width', function(d) {
@@ -186,8 +200,8 @@ export function treelist(barHeight) {
 		// adding arrows
 		nodeEnter.append('path')
 			.attr('transform', 'translate(0,' + -(barHeight / 2) + ')' + ' scale(' + (barHeight / faChevronDown.icon[1] * 0.5) + ')')
-			.attr('d', getExpandCollapseIcon)
-			.call(registerExpandHandler);
+			.attr('d', this.getExpandCollapseIcon)
+			.call(this.registerExpandHandler.bind(this));
 
 		// background for expand arrow
 		nodeEnter.append('rect')
@@ -196,7 +210,7 @@ export function treelist(barHeight) {
 			.attr('height', barHeight)
 			.attr('transform', 'translate(0,' + -(barHeight / 2) + ')')
 			.style('opacity', 0)
-			.call(registerExpandHandler);
+			.call(this.registerExpandHandler.bind(this));
 
 		// adding file or folder names
 		nodeEnter.append('text')
@@ -218,11 +232,11 @@ export function treelist(barHeight) {
 		node.exit()
 			.remove();
 
-		if (onChange) {
-			onChange(nodes);
+		if (this._onChange) {
+			this._onChange(this.nodes);
 		}
-		labelMoving.registerDrag(labelG.selectAll('.labelcell'));
+		this.labelMoving.registerDrag(
+			this.labelG.selectAll('.labelcell')
+		);
 	};
-
-	return _treelist;
 }

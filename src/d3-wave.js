@@ -10,7 +10,7 @@ import { RowRendererStruct } from './rowRenderers/struct.js';
 import { RowRendererArray } from './rowRenderers/array.js';
 import { SCALAR_FORMAT, VECTOR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
-import { treelist } from './signalList.js';
+import { TreeList } from './treeList.js';
 import { faQuestion, faPlus, faTrash, faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar.js';
 import { exportStyledSvgToBlob } from './exportSvg.js'
@@ -287,8 +287,6 @@ export default class WaveGraph {
 			.attr('d', function(d) {
 				return d.icon.icon[4];
 			});
-		if (this.treelist)
-			this.yaxisG.call(this.treelist);
 	}
 	drawYAxis() {
 		var sizes = this.sizes;
@@ -305,6 +303,9 @@ export default class WaveGraph {
 			this.yaxisG.attr('transform',
 				'translate(0,' + (sizes.margin.top + ROW_Y / 2) + ')');
 			this.drawControlIcons();
+
+			if (this.treelist)
+				this.yaxisG.call(this.treelist.draw.bind(this.treelist));
 		}
 		if (!this.labelAreaSizeDragBar) {
 			var graph = this;
@@ -407,14 +408,14 @@ export default class WaveGraph {
 		this.setZoom();
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		var graph = this;
-		this.treelist = treelist(ROW_Y)
-			.size(sizes.margin.left, sizes.height)
-			.data(this.allData)
-			.onChange(function(selection) {
-				graph.data = selection.map((d) => { return d.data; });
-				graph.draw();
-			});
-		this.treelist.data(this.allData);
+		if (!this.treelist) {
+			this.treelist = new TreeList(ROW_Y)
+				.onChange(function(selection) {
+					graph.data = selection.map((d) => { return d.data; });
+					graph.draw();
+				});
+		}
 		this.setSizes();
+		this.treelist.data(this.allData);
 	}
 }
