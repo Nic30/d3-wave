@@ -62,7 +62,7 @@ export class RowRendererBit extends RowRendererBase {
                 return waveRowX(d[0]);
             })
             .attr('y', function () {
-                return waveRowY(0);
+                return waveRowY(1);
             });
     }
 }
