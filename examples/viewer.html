@@ -25,12 +25,10 @@
 
 	function draw(signalData) {
 	    waveGraph.bindData(signalData);
-	    waveGraph.draw();
 	}
 
 	function resize() {
-	    waveGraph.setSizes()
-	    waveGraph.draw()
+	    waveGraph.setSizes();
 	}
 	d3.select(window).on("resize", resize);
 
@@ -47,6 +45,10 @@
   	    var contents = e.target.result;
   	    draw(JSON.parse(contents));
   	  };
+  	  reader.onerror = function(e) {
+  	  	console.log(e);
+  	  	throw e;
+  	  }
   	  reader.readAsText(file);
   	}
     
