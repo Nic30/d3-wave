@@ -310,7 +310,7 @@ export default class WaveGraph {
 		if (!this.labelAreaSizeDragBar) {
 			var graph = this;
 			this.labelAreaSizeDragBar = new DragBarVertical(
-				this.svg,
+				this.yaxisG,
 				[sizes.dragWidth, sizes.height],
 				[0, sizes.width + sizes.margin.left],
 				[sizes.margin.left, sizes.margin.top]
