@@ -65,7 +65,8 @@ export class RowRendererBits extends RowRendererBase {
             .attr('y', waveRowHeight / 2 + waveRowYpadding)
             .text(function (d) {
 				var fontSize = window.getComputedStyle(this).fontSize;
-				if (fontSize === ""){
+				if (fontSize === "") {
+					// default font size
 					fontSize = 16;
 				} else if (fontSize.substr(fontSize.length - 2) !== "px") {
 					throw new Error(fontSize);
