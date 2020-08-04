@@ -65,10 +65,13 @@ export class RowRendererBits extends RowRendererBase {
             .attr('y', waveRowHeight / 2 + waveRowYpadding)
             .text(function (d) {
 				var fontSize = window.getComputedStyle(this).fontSize;
-				if (fontSize.substr(fontSize.length - 2) !== "px") {
+				if (fontSize === ""){
+					fontSize = 16;
+				} else if (fontSize.substr(fontSize.length - 2) !== "px") {
 					throw new Error(fontSize);
+				} else {
+					fontSize = Number(fontSize.substr(0, fontSize.length - 2));
 				}
-				fontSize = Number(fontSize.substr(0, fontSize.length - 2));
 				var formatedText = formatInfo(d[1]);
 				var duration = d[2];
 				var width = waveRowX(duration);
