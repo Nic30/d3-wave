@@ -26,12 +26,13 @@ export class RowRendererBits extends RowRendererBase {
         newRects.attr('transform', function (d) {
             var t = waveRowX(d[0]);
             return 'translate(' + [t, 0] + ')';
-        }).attr('class', function (d) {
+        })
+ 		.attr('class', function (d) {
             if (renderer.isValid(d)) {
                 return 'value-rect value-rect-valid';
             } 
             return 'value-rect value-rect-invalid';
-        });
+        })
 
         // can not use index from d function because it is always 0
         newRects.append('path')
@@ -52,18 +53,31 @@ export class RowRendererBits extends RowRendererBase {
                ' L ' + [edgeW, 0] + ' Z';
             });
 
+		var x0 = waveRowX.domain()[0];
         // can not use index from d function because it is always 0
         newRects.append('text')
-            .text(function (d) {
-                // skip base
-                return formatInfo(d[1]);
-            })
             .attr('x', function (d) {
                 var duration = d[2];
-                var x = waveRowX(waveRowX.domain()[0] + duration / 2);
+                var x = waveRowX(x0 + duration / 2);
                 if (x < 0) { throw new Error(x); }
                 return x;
             })
-            .attr('y', waveRowHeight / 2 + waveRowYpadding);
+            .attr('y', waveRowHeight / 2 + waveRowYpadding)
+            .text(function (d) {
+				var fontSize = window.getComputedStyle(this).fontSize;
+				if (fontSize.substr(fontSize.length - 2) !== "px") {
+					throw new Error(fontSize);
+				}
+				fontSize = Number(fontSize.substr(0, fontSize.length - 2));
+				var formatedText = formatInfo(d[1]);
+				var duration = d[2];
+				var width = waveRowX(duration);
+				if (formatedText.length * fontSize > width) {
+					var chars = Math.ceil(width/fontSize);
+					return formatedText.substr(0, chars);
+				}
+				return formatedText;
+            });
+	
     }
 }

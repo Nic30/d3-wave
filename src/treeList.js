@@ -89,15 +89,26 @@ export class TreeList {
 		this.labelMoving.registerHandlers(this.rootElm);
 		this.scroll.registerWheel(this.rootElm);
 	};
+	_setLabelWidth(_width) {
+		var barHeight = this.barHeight;
+		// udpate width on all labels
+		this.labelG.selectAll('.labelcell rect')
+			.attr('width', function(d) {
+				return _width - d.depth * 20 - barHeight / 2;
+			});
+		this.labelG.selectAll(".labelcell")
+			.style("clip-path", function (d) {
+				var width = _width - d.depth * 20 - barHeight / 2;
+				return ["polygon(", 0, "px ", 0, "px, ",
+					0, "px ", barHeight, "px, ",
+					width, "px ", barHeight, "px, ",
+					width, "px ", 0, "px)"].join("");
+		});
+	}
 	size(_width, _height) {
 		if (!arguments.length) { return [this.width, this.height]; }
 		if (this.labelG && this.width !== _width) {
-			var barHeight = this.barHeight;
-			// udpate width on all labels
-			this.labelG.selectAll('.labelcell rect')
-				.attr('width', function(d) {
-					return _width - d.depth * 20 - barHeight / 2;
-				});
+			this._setLabelWidth(_width);
 		}
 		this.width = _width;
 		this.height = _height;
@@ -187,12 +198,8 @@ export class TreeList {
 			});
 
 		var barHeight = this.barHeight;
-		var width = this.width;
 		// background rectangle for highlight
 		nodeEnter.append('rect')
-			.attr('width', function(d) {
-				return width - d.depth * 20 - barHeight / 2;
-			})
 			.attr('height', barHeight)
 			.attr('x', barHeight / 2)
 			.attr('y', -0.5 * barHeight);
@@ -231,7 +238,7 @@ export class TreeList {
 
 		node.exit()
 			.remove();
-
+		this._setLabelWidth(this.width);
 		if (this._onChange) {
 			this._onChange(this.nodes);
 		}
