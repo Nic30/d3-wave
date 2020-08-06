@@ -13,7 +13,7 @@ import { TreeList } from './treeList.js';
 import { faQuestion, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar.js';
 import { exportStyledSvgToBlob } from './exportSvg.js'
-import { signalContextMenuInit } from './signalContextMenu.js';
+import { signalContextMenuInit } from './signalLabelContextMenu.js';
 import { Tooltip } from './tooltip.js';
 
 import './d3-wave.css';
