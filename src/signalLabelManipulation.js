@@ -22,7 +22,7 @@ export class SignalLabelManipulation {
 				targetParentNode = n.parent;
 				onParentI = siblings.indexOf(n);
 				break;
-			} else if (y <= n.y + this.ROW_Y) {
+			} else if (y <= n.y + this.ROW_Y * 0.5) {
 				// insert after
 				// if n is hierarchical insert into
 				if (n.children) {
@@ -117,7 +117,7 @@ export class SignalLabelManipulation {
 
 		if (!insertingToItself && (
 			newParent !== d.parent ||
-			newIndex !== d.parent.children.indexOf(d))) {
+			newIndex !== d.parent.children.indexOf(d) + 1)) {
 			// moving on new place
 			elm.classed('selected', false);
 			d.data.type.selected = false;
