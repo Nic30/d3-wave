@@ -96,6 +96,7 @@ export function scrollbar (barHeight) {
     _scrollbar.registerWheel = function (elm) {
         elm.on('wheel', function () {
             var step = d3.event.deltaY > 0 ? 1 : -1;
+            d3.event.preventDefault();
             d3.event.stopPropagation();
             var y = parseInt(moverElm.attr('y'));
             var ny = Math.max(0, y + barHeight * step);
