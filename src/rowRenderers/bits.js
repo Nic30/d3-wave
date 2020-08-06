@@ -44,12 +44,12 @@ export class RowRendererBits extends RowRendererBase {
             } 
             return 'value-rect value-rect-invalid';
         })
-
+		var x0 = waveRowX.domain()[0];
         // can not use index from d function because it is always 0
         newRects.append('path')
             .attr('d', function (d) {
                 var duration = d[2];
-                var right = waveRowX(waveRowX.domain()[0] + duration);
+                var right = waveRowX(x0 + duration);
                 var top = waveRowHeight;
                 if (right < 0) {
                     throw new Error([right, d]);
@@ -64,7 +64,7 @@ export class RowRendererBits extends RowRendererBase {
                ' L ' + [edgeW, 0] + ' Z';
             });
 
-		var x0 = waveRowX.domain()[0];
+
         // can not use index from d function because it is always 0
         newRects.append('text')
             .attr('x', function (d) {
@@ -86,7 +86,10 @@ export class RowRendererBits extends RowRendererBase {
 				}
 				var formatedText = formatInfo(d[1]);
 				var duration = d[2];
-				var width = waveRowX(duration);
+				var width = waveRowX(x0 + duration) - waveRowX(x0);
+				if (width < 0) {
+					throw new Error([x0, duration, width]);
+				}
 				if (formatedText.length * fontSize > width) {
 					var chars = Math.ceil(width/fontSize);
 					return formatedText.substr(0, chars);

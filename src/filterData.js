@@ -32,18 +32,18 @@ export function filterDataByTime(data, rowRange) {
 				} else {
 					prevVal = prev[1];
 				}
-				_data.push([min, prevVal, d[0] - min]);
+				_data.push([min, prevVal, t - min]);
 			}
 			// normal data in range
 			var next = data[i + 1];
 			var nextTime;
 			if (next) {
-				nextTime = next[0];
+				nextTime = Math.min(max, next[0]);
 			} else {
 				nextTime = max;
 			}
 
-			_data.push([d[0], d[1], nextTime - d[0]]);
+			_data.push([t, d[1], nextTime - t]);
 		} else {
 			if (_data.length === 0) {
 				// selection range smaller than one data item
@@ -54,7 +54,7 @@ export function filterDataByTime(data, rowRange) {
 				} else {
 					prevVal = prev[1];
 				}
-				_data.push([min, prevVal, max]);
+				_data.push([min, prevVal, max - min]);
 			}
 			// after selected range
 			break;
@@ -70,7 +70,7 @@ export function filterDataByTime(data, rowRange) {
 		} else {
 			lastVal = last[1];
 		}
-		_data.push([min, lastVal, max]);
+		_data.push([min, lastVal, max - min]);
 	}
 
 	return _data;
