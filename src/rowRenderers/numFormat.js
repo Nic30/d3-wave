@@ -15,7 +15,7 @@ function genFormatter (newBase) {
         let base = NUM_FORMATS[baseChar];
         if (base === newBase) { return d; }
         let containsX = d.indexOf('X') >= 0;
-        if (newBase === 10) { return 'X'; }
+        if (containsX && newBase === 10) { return 'X'; }
 
         let origD = d;
         if (containsX) {
