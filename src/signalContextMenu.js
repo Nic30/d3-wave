@@ -10,7 +10,14 @@ export function signalContextMenuInit(graph) {
 			if (formatters.hasOwnProperty(key)) {
 				function genFormatChanger(key) {
 					return function() {
-						d.data.type.formatter = formatters[key];
+						var newFormatter = formatters[key];
+						d.data.type.formatter = newFormatter;
+						var currentRenderrer = d.data.type.renderer;
+						graph.treelist.visibleNodes().forEach(function(d) {
+							if (d.data.type.selected && d.data.type.renderer === currentRenderrer) {
+								d.data.type.formatter = newFormatter;
+							}
+						});
 						graph.draw();
 					}
 				}
