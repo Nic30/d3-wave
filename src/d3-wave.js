@@ -23,7 +23,7 @@ export default class WaveGraph {
 	constructor(svg) {
 		this.svg = svg;
 		svg.classed('d3-wave', true);
-		this.g = svg.append('g');
+		this.dataG = svg.append('g');
 		this.xaxisScale = null;
 		this.yaxisG = null;
 		this.xaxisG = null;
@@ -50,7 +50,7 @@ export default class WaveGraph {
 			width: -1,
 			height: -1
 		};
-		this.TICKS_PER_X_AXIS = 10;
+		this.TICKS_PER_X_AXIS = 10; // number of ticks in X (time) axis
 		this.data = [];
 		// list of renderers for value rows
 		this.rowRenderers = [
@@ -61,7 +61,7 @@ export default class WaveGraph {
 			new RowRendererStruct(this),
 			new RowRendererArray(this),
 		];
-		this.draggedElem = null;
+		this.timeZoom = null;
 		this.labelAreaSizeDragBar = null;
 		this.labelContextMenu = signalContextMenuInit(this);
 		this.setSizes();
@@ -69,20 +69,42 @@ export default class WaveGraph {
 
 	setZoom() {
 		var timeRange = this.xRange;
-		var zoom = d3.zoom()
+		this.timeZoom = d3.zoom()
 			.scaleExtent([1 / timeRange[1], 1.1])
 			.translateExtent([[timeRange[0], 0], [timeRange[1], 0]])
 			.on('zoom', this.zoomed.bind(this));
-		this.g.call(zoom);
+		this.dataG.call(this.timeZoom);
 	}
 	zoomed() {
+		if (!this.xaxisG)
+			return;
 		var range = this.xRange;
 		var t = d3.event.transform;
 		var totalRange = range[1] - range[0];
-		var currentRange = totalRange * t.k;
 		var displayWidth = this.xaxisG.select('.domain').node().getBBox().width;
+		var kDeltaToScroll = 0;
+		if (d3.event.sourceEvent.shiftKey) {
+			// horizontall scroll in data
+			var curR = this.sizes.row.range;
+			var prevK = (curR[1] - curR[0]) / totalRange;
+			kDeltaToScroll = t.k - prevK;
+			//console.log([t.k, prevK]);
+			t.k = prevK;
+		}
+		// zoom in time domain
+		var currentRange = totalRange * t.k;
+		//console.log(["kDeltaToScroll", kDeltaToScroll, "currentRange", currentRange, 't.x', t.x]);
 		var begin = (-t.x / displayWidth) * currentRange;
+		//console.log(["begin0", begin]);
+		if (kDeltaToScroll < 0) {
+			begin -= currentRange * 0.1;
+		} else if (kDeltaToScroll > 0) {
+			begin += currentRange * 0.1;
+		}
+		//console.log(["begin1", begin]);
 		begin = Math.max(Math.min(begin, range[1] - currentRange), 0);
+		//console.log(["begin2", begin]);
+		t.x = -(begin / currentRange) * displayWidth;
 		var end = begin + currentRange;
 		end = Math.max(end, 1);
 
@@ -97,8 +119,8 @@ export default class WaveGraph {
 		this.draw();
 	}
     /*
-   * extract width/height from svg and apply margin to main "g"
-   */
+     * extract width/height from svg and apply margin to main "g"
+     */
 	setSizes() {
 		var svg = this.svg;
 		var s = this.sizes;
@@ -119,7 +141,7 @@ export default class WaveGraph {
 		if (s.height <= 0) {
 			throw new Error('Height too small for main SVG element ' + s.height);
 		}
-		this.g.attr('transform',
+		this.dataG.attr('transform',
 			'translate(' + s.margin.left + ',' + s.margin.top + ')');
 
 		if (this.treelist) {
@@ -150,7 +172,7 @@ export default class WaveGraph {
 			vhl.attr('y2', height);
 		} else {
 			// construct new help line
-			this.verticalHelpLine = this.g.append('line')
+			this.verticalHelpLine = this.dataG.append('line')
 				.attr('class', 'vertical-help-line')
 				.attr('x1', 0)
 				.attr('y1', 0)
@@ -162,7 +184,7 @@ export default class WaveGraph {
 	}
 
 	drawGridLines() {
-		// simple graph with grid lines in v4
+		// simple graph with grid lines in d3v4
 		// https://bl.ocks.org/d3noob/c506ac45617cf9ed39337f99f8511218
 		var height = this.sizes.height;
 		var xaxisScale = this.xaxisScale;
@@ -171,7 +193,7 @@ export default class WaveGraph {
 				return xaxisScale(d);
 			});
 		// add the X gridlines (parallel with x axis)
-		var gridLines = this.g.selectAll('.grid-line-x')
+		var gridLines = this.dataG.selectAll('.grid-line-x')
 			.data(xValues);
 
 		gridLines
@@ -210,7 +232,7 @@ export default class WaveGraph {
 				.tickFormat(
 					createTimeFormatterForTimeRange(this.sizes.row.range)
 				);
-			this.xaxisG = this.g.append('g')
+			this.xaxisG = this.dataG.append('g')
 				.attr('class', 'axis axis-x')
 				.call(this.xaxis);
 		}
@@ -220,7 +242,7 @@ export default class WaveGraph {
 		var sizes = this.sizes;
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		// Define the div for the tooltip
-		
+
 		var icons = [
 			{
 				'icon': faQuestion,
@@ -297,10 +319,10 @@ export default class WaveGraph {
 		var graph = this;
 		// drawWaves
 		// remove previously rendered row data
-		this.g.selectAll('.value-row')
+		this.dataG.selectAll('.value-row')
 			.remove();
 
-		var valueRows = this.g.selectAll('.value-row')
+		var valueRows = this.dataG.selectAll('.value-row')
 			.data(graph.data);
 
 		function renderWaveRows(selection) {
