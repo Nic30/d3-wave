@@ -6,8 +6,9 @@ import { SignalLabelManipulation } from './signalLabelManipulation.js';
 import { faChevronRight, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 export class TreeList {
-	constructor(barHeight) {
+	constructor(barHeight, contextMenu) {
 		this.barHeight = barHeight;
+		this.contextMenu = contextMenu;
 		this.root;
 		this.rootElm;
 		this.labelG;
@@ -20,7 +21,7 @@ export class TreeList {
 		this.height;
 		this.onChange;
 		this.nodes = [];
-		this.labelMoving = 	new SignalLabelManipulation(barHeight, this);
+		this.labelMoving = new SignalLabelManipulation(barHeight, this);
 	}
 	getExpandCollapseIcon(d) {
 		if (d.data.children || d.data._children) {
@@ -34,7 +35,7 @@ export class TreeList {
 	}
 	registerExpandHandler(elm) {
 		var clickExpandCollapse = this.clickExpandCollapse.bind(this);
-		return elm.on('click', function(d) {clickExpandCollapse(d, elm);})
+		return elm.on('click', function(d) { clickExpandCollapse(d, elm); })
 			.on('mousedown', function() { d3.event.stopPropagation(); })
 			.on('mouseup', function() { d3.event.stopPropagation(); });
 	}
@@ -86,7 +87,6 @@ export class TreeList {
 		this.scrollbarG = this.rootElm.append('g')
 			.attr('class', 'scrollbar');
 		this.scrollbarG.call(this.scroll);
-		this.labelMoving.registerHandlers(this.rootElm);
 		this.scroll.registerWheel(this.rootElm);
 	};
 	_setLabelWidth(_width) {
@@ -97,13 +97,13 @@ export class TreeList {
 				return _width - d.depth * 20 - barHeight / 2;
 			});
 		this.labelG.selectAll(".labelcell")
-			.style("clip-path", function (d) {
+			.style("clip-path", function(d) {
 				var width = _width - d.depth * 20 - barHeight / 2;
 				return ["polygon(", 0, "px ", 0, "px, ",
 					0, "px ", barHeight, "px, ",
 					width, "px ", barHeight, "px, ",
 					width, "px ", 0, "px)"].join("");
-		});
+			});
 	}
 	size(_width, _height) {
 		if (!arguments.length) { return [this.width, this.height]; }
@@ -136,7 +136,7 @@ export class TreeList {
 			maxDepth = Math.max(maxDepth, d.depth);
 		});
 		this.scroll.data(flatenedData, maxDepth);
-		
+
 		if (this.rootElm) {
 			if (this.labelG)
 				this.labelG.selectAll('.labelcell').remove();
@@ -162,11 +162,12 @@ export class TreeList {
 	filter(predicate) {
 		function remove(d) {
 			if (d.parent) {
-				const index = d.parent.children.indexOf(5);
-				if (index > -1) {
-					// remove an item from a children on parent
-					d.parent.children.splice(index, 1);
+				const index = d.parent.children.indexOf(d);
+				if (index < 0) {
+					throw new Error("Deleting something which is not there");
 				}
+				// remove an item from a children on parent
+				d.parent.children.splice(index, 1);
 			}
 		}
 		var updated = false;
@@ -238,6 +239,8 @@ export class TreeList {
 
 		node.exit()
 			.remove();
+
+		nodeEnter.on('contextmenu', this.contextMenu);
 		this._setLabelWidth(this.width);
 		if (this._onChange) {
 			this._onChange(this.nodes);

@@ -10,9 +10,8 @@ export class DragBarVertical {
 		[this.x, this.y] = init_pos;
 		this.dragBehavior = d3.drag()
 			.on('drag', this._onDragDelegate.bind(this));
-		this.g = parentGElm.append("g")
-			.data([this,]);
-		this.dragHandle = this.g.append("rect")
+		this.dragHandle = parentGElm.append("rect")
+			.data([this,])
 		    .classed('dragbar-vertical', true)
 			.attr("fill", "lightblue")
 			.attr("fill-opacity", .5)

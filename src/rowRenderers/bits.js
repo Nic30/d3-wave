@@ -1,8 +1,19 @@
 "use strict";
 
 import { RowRendererBase } from './base.js';
+import { SCALAR_FORMAT } from './numFormat.js';
 
+/**
+ * A renderer for bit vector value rows.
+ * Value is supposed to be a number or based string without leading 0 (eg. "x10" instead of "0x10" )
+ */
 export class RowRendererBits extends RowRendererBase {
+	constructor(waveGraph) {
+		super(waveGraph);
+		this.FORMATTERS = SCALAR_FORMAT;
+		this.DEFAULT_FORMAT = SCALAR_FORMAT.UINT_HEX;
+	}
+	
     select (typeInfo) {
         return typeInfo.name === 'wire' && typeInfo.width > 1;
     }

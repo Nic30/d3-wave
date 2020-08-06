@@ -9,23 +9,6 @@ export class SignalLabelManipulation {
 		this.labels = null;
 		this.ROW_Y = ROW_Y;
 	}
-	registerHandlers(rootElm) {
-		var _this = this;
-		rootElm.on('focus', function() {
-			d3.select(this).on('keydown', function() {
-				var tagName = d3.select(d3.event.target).node().tagName;
-				if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
-					// ignore text edit elements
-					return;
-				}
-				if (d3.event.key === 'Delete') {
-					_this.signalList.filter(function(d) {
-						return !d.type.selected;
-					});
-				}
-			});
-		});
-	}
 
 	resolveInsertTarget(y) {
 		var targetParentNode, onParentI, siblings;

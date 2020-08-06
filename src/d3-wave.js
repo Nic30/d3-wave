@@ -8,12 +8,13 @@ import { RowRendererEnum } from './rowRenderers/enum.js';
 import { RowRendererLabel } from './rowRenderers/label.js';
 import { RowRendererStruct } from './rowRenderers/struct.js';
 import { RowRendererArray } from './rowRenderers/array.js';
-import { SCALAR_FORMAT, VECTOR_FORMAT } from './numFormat.js';
 import { createTimeFormatterForTimeRange } from './timeFormat.js';
 import { TreeList } from './treeList.js';
-import { faQuestion, faPlus, faTrash, faRedo, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faQuestion, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar.js';
 import { exportStyledSvgToBlob } from './exportSvg.js'
+import { signalContextMenuInit } from './signalContextMenu.js';
+
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
@@ -59,6 +60,7 @@ export default class WaveGraph {
 		];
 		this.draggedElem = null;
 		this.labelAreaSizeDragBar = null;
+		this.labelContextMenu = signalContextMenuInit(this);
 		this.setSizes();
 	}
 
@@ -122,6 +124,7 @@ export default class WaveGraph {
 		}
 		if (this.labelAreaSizeDragBar)
 			this.labelAreaSizeDragBar.size(s.dragWidth, s.height);
+
 	}
 
 	drawYHelpLine() {
@@ -223,15 +226,6 @@ export default class WaveGraph {
 				'tooltip': 'd3-wave help placeholder[TODO]',
 			},
 			{
-				'icon': faPlus,
-				'tooltip': 'Add signals to trace',
-			},
-			{ 'icon': faRedo },
-			{
-				'icon': faTrash,
-				'tooltip': 'Remove selected from trace',
-			},
-			{
 				'icon': faDownload,
 				'tooltip': 'Download current screen as SVG image',
 				'onclick': function() {
@@ -306,6 +300,7 @@ export default class WaveGraph {
 
 			if (this.treelist)
 				this.yaxisG.call(this.treelist.draw.bind(this.treelist));
+			this.yaxisG.selectAll(".labelcell").on('contextmenu', this.labelContextMenu);
 		}
 		if (!this.labelAreaSizeDragBar) {
 			var graph = this;
@@ -346,34 +341,7 @@ export default class WaveGraph {
 				if (data && data.length) {
 					var parent = d3.select(this);
 					data = filterDataByTime(data, graph.sizes.row.range);
-					var rendererFound = false;
-					for (var i = 0; i < graph.rowRenderers.length; i++) {
-						var renderer = graph.rowRenderers[i];
-						if (renderer.select(signalType)) {
-							var fName = signalType.formatter;
-							var formatter = (d) => { return d; };
-							if (renderer instanceof RowRendererArray) {
-								if (!fName) {
-									fName = "UINT_HEX";
-								}
-								formatter = VECTOR_FORMAT[fName];
-							} else if (renderer instanceof RowRendererBits) {
-								if (!fName) {
-									fName = "UINT_HEX";
-								}
-								formatter = SCALAR_FORMAT[fName];
-							}
-							if (!formatter) {
-								throw new Error("Invalid formater " + fName);
-							}
-							renderer.render(parent, data, signalType, formatter);
-							rendererFound = true;
-							break;
-						}
-					}
-					if (!rendererFound) {
-						throw new Error('None of installed renderers supports signalType:' + signalType);
-					}
+					signalType.renderer.render(parent, data, signalType, signalType.formatter);
 				}
 			});
 		}
@@ -393,15 +361,33 @@ export default class WaveGraph {
 		}
 		this.allData = _signalData;
 		var maxT = 0;
-		function discoverMaxT(d) {
+		var rowRenderers = this.rowRenderers;
+		function findRendererAndDiscoverMaxT(d) {
 			var dData = d.data;
 			if (dData && dData.length) {
 				var lastTimeInData = dData[dData.length - 1][0];
 				maxT = Math.max(maxT, lastTimeInData);
 			}
-			(d.children || d._children || []).forEach(discoverMaxT);
+			var signalType = d.type;
+			for (var i = 0; i < rowRenderers.length; i++) {
+				var renderer = rowRenderers[i];
+				if (renderer.select(signalType)) {
+					var formatter = signalType.formatter;
+					if (!formatter) {
+						formatter = renderer.DEFAULT_FORMAT;
+					}
+					signalType.formatter = formatter;
+					signalType.renderer = renderer;
+					break;
+				}
+			}
+			if (!signalType.renderer) {
+				throw new Error('None of installed renderers supports signalType:' + signalType);
+			}
+
+			(d.children || d._children || []).forEach(findRendererAndDiscoverMaxT);
 		}
-		discoverMaxT(this.allData);
+		findRendererAndDiscoverMaxT(this.allData);
 
 		var sizes = this.sizes;
 		this.xRange[1] = sizes.row.range[1] = maxT;
@@ -409,7 +395,7 @@ export default class WaveGraph {
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		var graph = this;
 		if (!this.treelist) {
-			this.treelist = new TreeList(ROW_Y)
+			this.treelist = new TreeList(ROW_Y, this.labelContextMenu)
 				.onChange(function(selection) {
 					graph.data = selection.map((d) => { return d.data; });
 					graph.draw();
