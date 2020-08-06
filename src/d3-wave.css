@@ -1,45 +1,45 @@
-.value-line {
+.d3-wave .value-line {
 	fill: none;
 	stroke: lime;
 	stroke-width: 1.5px;
 }
 
-.grid-line-x {
+.d3-wave .grid-line-x {
 	stroke: lightgrey;
 	opacity: 0.7;
 	stroke-dasharray: 5, 5;
 }
 
-.grid path {
+.d3-wave .grid path {
 	stroke-width: 0;
 }
 
-.value-rect-invalid path {
+.d3-wave .value-rect-invalid path {
 	fill: darkred;
 	stroke: red;
 }
 
-.value-rect-invalid rect {
+.d3-wave .value-rect-invalid rect {
 	fill: darkred;
 	stroke: red;
 }
 
-.value-rect-valid path {
+.d3-wave .value-rect-valid path {
 	fill: green;
 	stroke: lime;
 }
 
-.value-rect-valid text {
+.d3-wave .value-rect-valid text {
 	text-anchor: middle;
 	fill: white;
 }
 
-.value-rect-invalid text {
+.d3-wave .value-rect-invalid text {
 	text-anchor: middle;
 	fill: white;
 }
 
-.wave-graph {
+.d3-wave {
 	background-color: black;
 	width: 100%;
 	height: 100%;
@@ -50,77 +50,77 @@
 	right: 0;
 }
 
-.domain {
+.d3-wave .domain {
 	stroke: yellow;
 	stroke-width: 1.5px;
 	shape-rendering: crispEdges;
 	vector-effect: non-scaling-stroke;
 }
 
-.tick line {
+.d3-wave .tick line {
 	stroke-width: 1.5px;
 	stroke: yellow;
 }
 
-.axis text {
+.d3-wave .axis text {
 	shape-rendering: crispEdges;
 	fill: yellow;
 }
 
 
-.axis-y path {
+.d3-wave .axis-y path {
 	shape-rendering: crispEdges;
 	fill: yellow;
 }
 
-.axis-y .highlight text {
+.d3-wave .axis-y .highlight text {
     fill: #ff751a;
     font-weight: bold;
 }
 
-.scrollbar .mover {
+.d3-wave .scrollbar .mover {
   fill: steelblue;
   pointer-events: all;
   cursor: ns-resize;
   opacity: 0.5;
 }
 
-.scrollbar .subBar { 
+.d3-wave .scrollbar .subBar { 
   fill: gray;
   opacity: 0.5;
 }
 
-.vertical-help-line {
+.d3-wave .vertical-help-line {
 	stroke: white;
 	stroke-width: 2;
 }
 
-.labelcell.selected rect {
+.d3-wave .labelcell.selected rect {
 	opacity: 50%;
 	fill: aqua;
 }
 
-.labelcell text {
+.d3-wave .labelcell text {
 	cursor:grabbing;
 }
 
-.labelcell .expandable {
+.d3-wave .labelcell .expandable {
 	cursor:pointer;
 }
 
-div.tooltip {	
+.d3-wave.tooltip {	
     position: absolute;			
     text-align: center;			
     width: 60px;					
     height: 28px;					
     padding: 2px;				
     font: 12px sans-serif;		
-    background: lightsteelblue;	
+    background-color: lightsteelblue;	
     border: 0px;		
     border-radius: 8px;			
     pointer-events: none;			
 }
 
-.axis .icons {
+.d3-wave .axis .icons {
     fill: white;
 }

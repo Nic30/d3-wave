@@ -14,12 +14,15 @@ import { faQuestion, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar.js';
 import { exportStyledSvgToBlob } from './exportSvg.js'
 import { signalContextMenuInit } from './signalContextMenu.js';
+import { Tooltip } from './tooltip.js';
 
+import './d3-wave.css';
 
 // main class which constructs the signal wave viewer
 export default class WaveGraph {
 	constructor(svg) {
 		this.svg = svg;
+		svg.classed('d3-wave', true);
 		this.g = svg.append('g');
 		this.xaxisScale = null;
 		this.yaxisG = null;
@@ -217,9 +220,7 @@ export default class WaveGraph {
 		var sizes = this.sizes;
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		// Define the div for the tooltip
-		var tooltipDiv = d3.select('body').append('div')
-			.attr('class', 'tooltip')
-			.style('opacity', 0);
+		
 		var icons = [
 			{
 				'icon': faQuestion,
@@ -234,43 +235,14 @@ export default class WaveGraph {
 					window.open(url);
 				}
 			}];
-		function addTooltip(d, tootipHtml) {
-			d['onmouseover'] = function() {
-				tooltipDiv.transition()
-					.duration(200)
-					.style('opacity', 0.9);
-				tooltipDiv.html(tootipHtml)
-					.style('left', (d3.event.pageX) + 'px')
-					.style('top', (d3.event.pageY - 28) + 'px');
-			}
-			d['onmouseout'] = function() {
-				tooltipDiv.transition()
-					.duration(500)
-					.style('opacity', 0);
-			}
-		}
-		icons.forEach((d) => {
-			if (d.tooltip) {
-				addTooltip(d, d.tooltip)
-			}
-		});
+		var tooltip = new Tooltip((d) => d.tooltip);
 		this.yaxisG.selectAll('text').data(icons).enter()
 			.append("g")
 			.attr("transform", function(d, i) {
 				return 'translate(' + (i * ROW_Y) + ',' + (-ROW_Y * 1) + ') scale(' + (ROW_Y / d.icon.icon[1] * 0.5) + ')';
 			})
-			.on('mouseover', function(d) {
-				if (d.onmouseover) {
-					return d.onmouseover();
-				}
-				return null;
-			})
-			.on('mouseout', function(d) {
-				if (d.onmouseout) {
-					return d.onmouseout();
-				}
-				return null;
-			}).on('click', function(d) {
+			.call(tooltip.addToElm.bind(tooltip))
+			.on('click', function(d) {
 				if (d.onclick) {
 					return d.onclick();
 				}
@@ -300,7 +272,6 @@ export default class WaveGraph {
 
 			if (this.treelist)
 				this.yaxisG.call(this.treelist.draw.bind(this.treelist));
-			this.yaxisG.selectAll(".labelcell").on('contextmenu', this.labelContextMenu);
 		}
 		if (!this.labelAreaSizeDragBar) {
 			var graph = this;

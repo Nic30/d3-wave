@@ -1,16 +1,19 @@
 const definition = require('./package.json')
 const dependencies = Object.keys(definition.dependencies)
 import resolve from '@rollup/plugin-node-resolve';
-
+import postcss from 'rollup-plugin-postcss';
 
 export default {
   input: 'index',
   external: dependencies,
   plugins: [
 	resolve({
-    jsnext: true,
-    module: true
-  }),
+      jsnext: true,
+      module: true,
+    }),
+	postcss({
+	  extensions: [ '.css' ],
+	}),
   ],
   output: {
     extend: true,
