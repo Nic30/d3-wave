@@ -44,13 +44,17 @@
     "@rollup/plugin-node-resolve": "^8.4.0",
     "coveralls": "latest",
     "eslint": "^7.4.0",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "latest",
     "rollup": "latest",
     "rollup-plugin-postcss": "^3.1.4"
   },
   "jest": {
     "coverageDirectory": "<rootDir>/tests/coverage",
-    "verbose": true
+    "verbose": true,
+    "moduleNameMapper": {
+      "\\.(css|less)$": "identity-obj-proxy"
+    }
   },
   "publishConfig": {
     "access": "public"
