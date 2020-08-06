@@ -11,7 +11,6 @@ export function signalContextMenuInit(graph) {
 				function genFormatChanger(key) {
 					return function() {
 						d.data.type.formatter = formatters[key];
-						console.log(key);
 						graph.draw();
 					}
 				}
