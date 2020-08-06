@@ -139,7 +139,7 @@ export default class WaveGraph {
 		function moveVerticalHelpLine() {
 			var xPos = d3.mouse(this)[0] - graph.sizes.margin.left;
 			if (xPos < 0) { xPos = 0; }
-			d3.select('.vertical-help-line')
+			svg.select('.vertical-help-line')
 				.attr('transform', function() {
 					return 'translate(' + xPos + ',0)';
 				})
