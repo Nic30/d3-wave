@@ -368,6 +368,11 @@ export default class WaveGraph {
 					var formatter = signalType.formatter;
 					if (!formatter) {
 						formatter = renderer.DEFAULT_FORMAT;
+					} else if (typeof formatter === 'string') {
+						formatter = renderer.FORMATTERS[formatter];
+						if (!formatter) {
+							throw new Error("Formatter value invalid " + signalType.formatter + "(" + d.name + ")");
+						}
 					}
 					signalType.formatter = formatter;
 					signalType.renderer = renderer;
