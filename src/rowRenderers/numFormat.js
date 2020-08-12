@@ -10,6 +10,7 @@ const NUM_FORMATS = {
 function genFormatter (newBase) {
     return function (d) {
         if (typeof d === 'number') { return d.toString(newBase); }
+		if (d === "X") { return d; }
         let baseChar = d[0];
         d = d.substring(1);
         let base = NUM_FORMATS[baseChar];
@@ -90,7 +91,7 @@ export const SCALAR_FORMAT = {
     UINT_BIN: genFormatter(2),
     UINT_OCT: genFormatter(8),
     UINT_DEC: genFormatter(10),
-    UINT_HEX: genFormatter(16)
+    UINT_HEX: genFormatter(16),
 };
 
 export const VECTOR_FORMAT = {
