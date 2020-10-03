@@ -75,15 +75,15 @@ export default class WaveGraph {
 			.on('zoom', this.zoomed.bind(this));
 		this.dataG.call(this.timeZoom);
 	}
-	zoomed() {
+	zoomed(ev) {
 		if (!this.xaxisG)
 			return;
 		var range = this.xRange;
-		var t = d3.event.transform;
+		var t = ev.transform;
 		var totalRange = range[1] - range[0];
 		var displayWidth = this.xaxisG.select('.domain').node().getBBox().width;
 		var kDeltaToScroll = 0;
-		if (d3.event.sourceEvent.shiftKey) {
+		if (ev.sourceEvent.shiftKey) {
 			// horizontall scroll in data
 			var curR = this.sizes.row.range;
 			var prevK = (curR[1] - curR[0]) / totalRange;
@@ -158,8 +158,9 @@ export default class WaveGraph {
 		var svg = this.svg;
 		var graph = this;
 
-		function moveVerticalHelpLine() {
-			var xPos = d3.mouse(this)[0] - graph.sizes.margin.left;
+		function moveVerticalHelpLine(ev) {
+			var boundingRect = ev.target.getBoundingClientRect();
+            var xPos = ev.clientX - boundingRect.left - graph.sizes.margin.left; //x position within the element.
 			if (xPos < 0) { xPos = 0; }
 			svg.select('.vertical-help-line')
 				.attr('transform', function() {
@@ -264,7 +265,7 @@ export default class WaveGraph {
 				return 'translate(' + (i * ROW_Y) + ',' + (-ROW_Y * 1) + ') scale(' + (ROW_Y / d.icon.icon[1] * 0.5) + ')';
 			})
 			.call(tooltip.addToElm.bind(tooltip))
-			.on('click', function(d) {
+			.on('click', function(ev, d) {
 				if (d.onclick) {
 					return d.onclick();
 				}

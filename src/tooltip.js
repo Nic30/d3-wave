@@ -16,15 +16,15 @@ export class Tooltip {
 	addToElm(selection) {
 		var tooltipDiv = this.tooltipDiv;
 		var tooltipHtmlGetter = this.tooltipHtmlGetter;
-		return selection.on('mouseover', function(d) {
+		return selection.on('mouseover', function(ev, d) {
 			tooltipDiv.transition()
 				.duration(200)
 				.style('display', 'block')
 				.style('opacity', 0.9);
 			var tootipHtml = tooltipHtmlGetter(d)
 			tooltipDiv.html(tootipHtml)
-				.style('left', (d3.event.pageX) + 'px')
-				.style('top', (d3.event.pageY - 28) + 'px');
+				.style('left', (ev.pageX) + 'px')
+				.style('top', (ev.pageY - 28) + 'px');
 		})
 		.on('mouseout', function() {
 			tooltipDiv.transition()

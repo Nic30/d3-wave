@@ -40,11 +40,11 @@ export class DragBarVertical {
 			return this._size;
 		}
 	}
-	_onDragDelegate(d) {
+	_onDragDelegate(ev, d) {
 		var width = this._size[0];
 		var dragx = Math.max(
 			this.xMin + (width / 2),
-			Math.min(this.xMax, d.x + d3.event.dx + (width / 2))
+			Math.min(this.xMax, d.x + ev.dx + (width / 2))
 		);
 		this.x = dragx - (width / 2);
 		this.dragHandle

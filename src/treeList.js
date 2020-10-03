@@ -35,12 +35,12 @@ export class TreeList {
 	}
 	registerExpandHandler(elm) {
 		var clickExpandCollapse = this.clickExpandCollapse.bind(this);
-		return elm.on('click', function(d) { clickExpandCollapse(d, elm); })
-			.on('mousedown', function() { d3.event.stopPropagation(); })
-			.on('mouseup', function() { d3.event.stopPropagation(); });
+		return elm.on('click', function(ev, d) { clickExpandCollapse(ev, d, elm); })
+			.on('mousedown', function(ev) { ev.stopPropagation(); })
+			.on('mouseup', function(ev) { ev.stopPropagation(); });
 	}
-	clickExpandCollapse(d, elm) {
-		d3.event.stopPropagation();
+	clickExpandCollapse(ev, d, elm) {
+		ev.stopPropagation();
 		if (d.children || d._children) {
 			if (d.children) {
 				d._children = d.children;

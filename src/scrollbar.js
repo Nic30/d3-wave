@@ -63,10 +63,10 @@ export function scrollbar (barHeight) {
                 .attr('height', Math.round((numBars / flatenedData.length) * height))
                 .attr('width', selectorWidth);
 
-            moverElm.call(d3.drag().on('drag', function () {
+            moverElm.call(d3.drag().on('drag', function (ev) {
                 var moverElm = d3.select(this);
                 var y = parseInt(moverElm.attr('y'));
-                var ny = y + d3.event.dy;
+                var ny = y + ev.dy;
                 var h = parseInt(moverElm.attr('height'));
 
                 if (ny < 0 || ny + h > height) {
@@ -94,10 +94,10 @@ export function scrollbar (barHeight) {
     
     };
     _scrollbar.registerWheel = function (elm) {
-        elm.on('wheel', function () {
-            var step = d3.event.deltaY > 0 ? 1 : -1;
-            d3.event.preventDefault();
-            d3.event.stopPropagation();
+        elm.on('wheel', function (ev) {
+            var step = ev.deltaY > 0 ? 1 : -1;
+            ev.preventDefault();
+            ev.stopPropagation();
             var y = parseInt(moverElm.attr('y'));
             var ny = Math.max(0, y + barHeight * step);
             var h = parseInt(moverElm.attr('height'));

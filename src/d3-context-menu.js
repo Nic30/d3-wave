@@ -83,7 +83,7 @@ export function contextMenu(menuItems, config) {
 	 * @param {*} data
 	 * @param {Number} index
 	 */
-	return function(data, index) {
+	return function(ev, data, index) {
 		var element = this;
 
 		// close any menu that's already opened
@@ -105,10 +105,10 @@ export function contextMenu(menuItems, config) {
 		d3.select('body').on('click.d3-context-menu', closeMenu);
 
 		var parent = d3.selectAll('.d3-context-menu')
-			.on('contextmenu', function() {
+			.on('contextmenu', function(ev) {
 				closeMenu();
-				d3.event.preventDefault();
-				d3.event.stopPropagation();
+				ev.preventDefault();
+				ev.stopPropagation();
 			})
 			.append('ul');
 
@@ -132,21 +132,21 @@ export function contextMenu(menuItems, config) {
 
 		var horizontalAlignment = 'left';
 		var horizontalAlignmentReset = 'right';
-		var horizontalValue = position ? position.left : d3.event.pageX - 2;
-		if (d3.event.pageX > pageWidth / 2) {
+		var horizontalValue = position ? position.left : ev.pageX - 2;
+		if (ev.pageX > pageWidth / 2) {
 			horizontalAlignment = 'right';
 			horizontalAlignmentReset = 'left';
-			horizontalValue = position ? pageWidth - position.left : pageWidth - d3.event.pageX - 2;
+			horizontalValue = position ? pageWidth - position.left : pageWidth - ev.pageX - 2;
 		}
 
 
 		var verticalAlignment = 'top';
 		var verticalAlignmentReset = 'bottom';
-		var verticalValue = position ? position.top : d3.event.pageY - 2;
-		if (d3.event.pageY > pageHeight / 2) {
+		var verticalValue = position ? position.top : ev.pageY - 2;
+		if (ev.pageY > pageHeight / 2) {
 			verticalAlignment = 'bottom';
 			verticalAlignmentReset = 'top';
-			verticalValue = position ? pageHeight - position.top : pageHeight - d3.event.pageY - 2;
+			verticalValue = position ? pageHeight - position.top : pageHeight - ev.pageY - 2;
 		}
 
 		// display context menu
@@ -157,8 +157,8 @@ export function contextMenu(menuItems, config) {
 			.style(verticalAlignmentReset, null)
 			.style('display', 'block');
 
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
+		ev.preventDefault();
+		ev.stopPropagation();
 
 
 		function createNestedMenu(parent, root, depth = 0) {

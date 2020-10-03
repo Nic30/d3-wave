@@ -42,13 +42,13 @@ export class SignalLabelManipulation {
 
 	// select and de-select all "g"
 	// signal labels dragging, reordering
-	dragStarted(elm, d) {
+	dragStarted(ev, elm, d) {
 		// move to front to make it virtually on top of all others
 		elm.raise();
 		// d = index of clicked signal
 		var current = d;
 		var currentlySelected = current.data.type.selected;
-		var shiftKey = d3.event.shiftKey || d3.event.sourceEvent.shiftKey;
+		var shiftKey = ev.shiftKey || ev.sourceEvent.shiftKey;
 		if (shiftKey && this.previouslyClicked) {
 			// select all between last selected and clicked
 			// de-select all
@@ -67,7 +67,7 @@ export class SignalLabelManipulation {
 				this.labels.classed('selected', (d) => d.data.type.selected);
 			return;
 		}
-		var altKey = d3.event.altKey || d3.event.sourceEvent.altKey;
+		var altKey = ev.altKey || ev.sourceEvent.altKey;
 		if (!altKey) {
 			if (this.signalList) {
 				this.signalList.visibleNodes().forEach(function(d) {
@@ -81,8 +81,8 @@ export class SignalLabelManipulation {
 			this.labels.classed('selected', (d) => d.data.type.selected);
 		}
 	}
-	dragged(elm, d) {
-		elm.attr('transform', 'translate(' + d.x + ',' + d3.event.y + ')');
+	dragged(ev, elm, d) {
+		elm.attr('transform', 'translate(' + d.x + ',' + ev.y + ')');
 	}
 	regenerateDepth(d) {
 		var offset = d.depth;
@@ -91,11 +91,11 @@ export class SignalLabelManipulation {
 			this.regenerateDepth(d2);
 		});
 	}
-	dragEnded(elm, d) {
+	dragEnded(ev, elm, d) {
 		// move to front to make it virtually on top of all others
 		elm.lower();
-		var insertTarget = this.resolveInsertTarget(d3.event.y);
-		var shiftKey = d3.event.shiftKey || d3.event.sourceEvent.shiftKey;
+		var insertTarget = this.resolveInsertTarget(ev.y);
+		var shiftKey = ev.shiftKey || ev.sourceEvent.shiftKey;
 		if (!(this.previouslyClicked != null && shiftKey) && d.data.type.selected) {
 			this.previouslyClicked = d;
 		} else {
@@ -145,14 +145,14 @@ export class SignalLabelManipulation {
 	registerDrag(labels) {
 		var _this = this;
 		this.labels = labels;
-		function dragStarted(d) {
-			return _this.dragStarted(d3.select(this), d);
+		function dragStarted(ev, d) {
+			return _this.dragStarted(ev, d3.select(this), d);
 		}
-		function drag(d) {
-			return _this.dragged(d3.select(this), d);
+		function drag(ev, d) {
+			return _this.dragged(ev, d3.select(this), d);
 		}
-		function dragEnd(d) {
-			return _this.dragEnded(d3.select(this), d);
+		function dragEnd(ev, d) {
+			return _this.dragEnded(ev, d3.select(this), d);
 		}
 		labels.call(
 			d3.drag()
