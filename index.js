@@ -8,3 +8,4 @@ export {default as WaveGraph} from './src/d3-wave.js';
 export {filterDataByTime} from './src/filterData.js';
 export {RowRendererBit} from './src/rowRenderers/bit.js';
 export {RowRendererBits} from './src/rowRenderers/bits.js';
+export {HexEdit} from './src/hexEdit.js';

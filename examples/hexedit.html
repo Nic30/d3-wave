@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="../node_modules/d3/dist/d3.js"></script>
+  <script type="text/javascript" src="../node_modules/@fortawesome/free-solid-svg-icons/index.js"></script>
+  <script type="text/javascript" src="../dist/d3-wave.js"></script>
+  <style type="text/css">
+  .d3-wave-hexedit {
+          background: black;
+          color: white;
+          border-spacing: 0px;
+  }
+
+  .d3-wave-hexedit .invalid {
+          background: red;
+  }
+  .d3-wave-hexedit table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      border: 0px;
+      margin: 0px;
+	  padding: 0px;
+  }
+  .d3-wave-hexedit tr {
+      margin: 0px;
+	  padding: 1px;
+  }
+  .d3-wave-hexedit td {
+      margin: 0px;
+      padding-top: 0px;
+      padding-bottom: 0px;
+	  padding-left: 1px;
+  }
+  .d3-wave-hexedit .addr {
+	  padding-right: 5px;
+  }
+  .d3-wave-hexedit .data tr:hover {
+      background-color: gray;
+  }
+  
+  </style>
+
+</head>
+<body>
+    <div id="hexedit"></div>
+    
+    <script type="text/javascript">
+    // script with instantiation of the graph
+    var div = d3.select("#hexedit")
+    var hexedit = new d3.HexEdit(div);
+
+    function draw(signalData) {
+        var data = signalData.children.filter((d) => d.name == 'memory')[0];
+        if (!data) {
+            throw new Error("Input is expected to contain memory signal");
+        }
+        hexedit.data(data);
+        hexedit.setTime(45000);
+        hexedit.draw();
+    }
+
+    function resize() {
+        hexedit.setSizes();
+    }
+    d3.select(window).on("resize", resize);
+
+    </script>
+    <script>
+      // load some data by default so example is showing something out of the box
+      d3.json("FifoTC_test_normalOp.json")
+        .then(draw);
+    </script>
+</body>
+</html>
