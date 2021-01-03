@@ -127,6 +127,7 @@ export class HexEdit {
 			for (var a = this.addrRange[0]; a < this.addrRange[1]; a += this.addrStep) {
 				// construct the rows of the table
 				var tr = t.append("tr");
+				// print first column with address
 				tr.append("td")
 					.classed("addr", true)
 					.text("0x" + a.toString(16).padStart(2, "0"))
