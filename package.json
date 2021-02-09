@@ -36,7 +36,7 @@
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^5.15.0",
-    "d3": "^6.2.0"
+    "d3": "^6.5.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.11.5",
