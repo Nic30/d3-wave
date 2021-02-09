@@ -34,7 +34,7 @@ python -m http.server  # run http server in root directory in order to open the 
 
 ## Input JSON format
 
-Signal record 
+Signal record
 ```js
 { "name": "<signal name>",
   "type": {"name": "<vcd signal type>",
@@ -51,3 +51,8 @@ Data record format
 
 There is a special type with name "struct"
 Signal with this name has stored another signal records in it's data.
+
+
+## Similar opensource
+
+* [Konata](https://github.com/shioyadan/Konata) pipeline visualizer
