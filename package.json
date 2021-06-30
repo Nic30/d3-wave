@@ -31,7 +31,8 @@
   ],
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/Nic30/d3-wave/issues"
+    "url": "https://github.com/Nic30/d3-wave/issues",
+    "email" : "Nic30original@gmail.com"
   },
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
