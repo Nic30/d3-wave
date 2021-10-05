@@ -55,4 +55,7 @@ Signal with this name has stored another signal records in it's data.
 
 ## Similar opensource
 
+* [wavedash](https://github.com/donn/wavedash) SVG-based Waveform Viewer
 * [Konata](https://github.com/shioyadan/Konata) pipeline visualizer
+* [wavedrom](https://github.com/wavedrom/wavedrom) static waveform printer
+
