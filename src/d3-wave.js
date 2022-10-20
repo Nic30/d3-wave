@@ -238,6 +238,7 @@ export default class WaveGraph {
 				.call(this.xaxis);
 		}
 	}
+
 	drawControlIcons() {
 		var _this = this;
 		var sizes = this.sizes;
