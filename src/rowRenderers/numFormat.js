@@ -7,7 +7,7 @@ const NUM_FORMATS = {
     'x': 16
 };
 
-function genFormatter (newBase) {
+function genFormatter(newBase) {
     return function (d) {
         if (typeof d === 'number') { return d.toString(newBase); }
 		if (d === "X") { return d; }
@@ -15,6 +15,7 @@ function genFormatter (newBase) {
         d = d.substring(1);
         let base = NUM_FORMATS[baseChar];
         if (base === newBase) { return d; }
+		d = d.toUpperCase();
         let containsX = d.indexOf('X') >= 0;
         if (containsX && newBase === 10) { return 'X'; }
 
