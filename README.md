@@ -58,4 +58,6 @@ Signal with this name has stored another signal records in it's data.
 * [wavedash](https://github.com/donn/wavedash) SVG-based Waveform Viewer
 * [Konata](https://github.com/shioyadan/Konata) pipeline visualizer
 * [wavedrom](https://github.com/wavedrom/wavedrom) static waveform printer
+* [JSwave](https://github.com/kwf37/JSwave) Javascript visualizer for vcd
+* [impulse.vscode](https://github.com/toem/impulse.vscode) event and waveform visualization and analysis workbench 
 
