@@ -1,5 +1,5 @@
-dist/*.zip
-node_modules/
+node_modules/*
 package.json.*
 tests/*
 doc/*
+examples/*
