@@ -1,9 +1,9 @@
-dist/
-node_modules/
+dist/*
+node_modules/*
 package.json.*
-tests/coverage/
-.externalToolBuilders/
-.settings/
+tests/coverage*
+.externalToolBuilders/*
+.settings/*
 .project
 package-lock.json
 

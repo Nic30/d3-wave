@@ -3,3 +3,5 @@ package.json.*
 tests/*
 doc/*
 examples/*
+.circleci/*
+node_modules/*
