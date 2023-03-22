@@ -159,7 +159,7 @@ export default class WaveGraph {
 		var graph = this;
 
 		function moveVerticalHelpLine(ev) {
-			var boundingRect = ev.target.getBoundingClientRect();
+			var boundingRect = svg.node().getBoundingClientRect();
             var xPos = ev.clientX - boundingRect.left - graph.sizes.margin.left; //x position within the element.
 			if (xPos < 0) { xPos = 0; }
 			svg.select('.vertical-help-line')
