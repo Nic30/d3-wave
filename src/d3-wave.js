@@ -180,7 +180,7 @@ export default class WaveGraph {
 				.attr('x2', 0)
 				.attr('y2', height);
 
-			svg.on('mousemove', moveVerticalHelpLine);
+			svg.on('mousedown', moveVerticalHelpLine);
 		}
 	}
 
@@ -292,7 +292,7 @@ export default class WaveGraph {
 				.classed('axis axis-y', true);
 			this.yaxisG.attr('transform',
 				'translate(0,' + (sizes.margin.top + ROW_Y / 2) + ')');
-			this.drawControlIcons();
+			//this.drawControlIcons();
 
 			if (this.treelist)
 				this.yaxisG.call(this.treelist.draw.bind(this.treelist));
