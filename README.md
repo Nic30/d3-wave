@@ -48,6 +48,8 @@ Data record format
 
 There is a special type with name "struct"
 Signal with this name has stored another signal records in it's data.
+The type in signal record specifies which renderer should be used and what is the format of values.
+For more details check `src/rowRenderers`. For example for type: `{"name": "wire", "width": 8}` the value may be 
 
 
 ## Similar opensource
@@ -56,5 +58,5 @@ Signal with this name has stored another signal records in it's data.
 * [Konata](https://github.com/shioyadan/Konata) pipeline visualizer
 * [wavedrom](https://github.com/wavedrom/wavedrom) static waveform printer
 * [JSwave](https://github.com/kwf37/JSwave) Javascript visualizer for vcd
-* [impulse.vscode](https://github.com/toem/impulse.vscode) event and waveform visualization and analysis workbench 
+* [impulse.vscode](https://github.com/toem/impulse.vscode) event and waveform visualization and analysis workbench
 

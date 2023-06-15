@@ -1,8 +1,9 @@
-"use strict";
-
 // https://stackoverflow.com/questions/15181452/how-to-save-export-inline-svg-styled-with-css-from-browser-to-image-file
 
-function inlineStylesToSvgCopy(parentNode, origData, CONTAINER_ELEMENTS, RELEVANT_STYLES) {
+function inlineStylesToSvgCopy(parentNode: SVGElement, origData: SVGElement,
+	CONTAINER_ELEMENTS: string[],
+	RELEVANT_STYLES: { [elmTag: string]: string[] }) {
+
 	if (parentNode.tagName in RELEVANT_STYLES) {
 		var StyleDef = window.getComputedStyle(origData);
 		var styleStrBuff = [];
@@ -17,11 +18,11 @@ function inlineStylesToSvgCopy(parentNode, origData, CONTAINER_ELEMENTS, RELEVAN
 	}
 	if (CONTAINER_ELEMENTS.indexOf(parentNode.tagName) === -1)
 		return;
-	var children = parentNode.childNodes;
-	var origChildDat = origData.childNodes;
-	for (var cd = 0; cd < children.length; cd++) {
-		var c = children[cd];
-		inlineStylesToSvgCopy(c, origChildDat[cd], CONTAINER_ELEMENTS, RELEVANT_STYLES);
+	const children = parentNode.childNodes;
+	const origChildDat = origData.childNodes;
+	for (let cd = 0; cd < children.length; cd++) {
+		const c = children[cd];
+		inlineStylesToSvgCopy(c as SVGElement, origChildDat[cd] as SVGElement, CONTAINER_ELEMENTS, RELEVANT_STYLES);
 	}
 }
 
@@ -36,11 +37,11 @@ const RELEVANT_STYLES = {
 	'polygon': ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'opacity']
 };
 
-export function exportStyledSvgToBlob(svgElm) {
-	var oDOM = svgElm.cloneNode(true);
-	inlineStylesToSvgCopy(oDOM, svgElm, CONTAINER_ELEMENTS, RELEVANT_STYLES);
+export function exportStyledSvgToBlob(svgElm: SVGSVGElement) {
+	const oDOM = svgElm.cloneNode(true);
+	inlineStylesToSvgCopy(oDOM as SVGElement, svgElm, CONTAINER_ELEMENTS, RELEVANT_STYLES);
 
-	var data = new XMLSerializer().serializeToString(oDOM);
-	var svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
+	const data = new XMLSerializer().serializeToString(oDOM);
+	const svg = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
 	return svg;
 }

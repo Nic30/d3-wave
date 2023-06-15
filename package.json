@@ -5,8 +5,8 @@
   "main": "dist/d3-wave.js",
   "scripts": {
     "init": "eslint --init",
-    "build": "rm -rf dist && mkdir dist && NODE_ENV=production rollup -c",
-    "clean": "rm -rf dist/ node_modules/",
+    "build": "rimraf dist && mkdir dist && NODE_ENV=production rollup -c rollup.config.mjs",
+    "clean": "rimraf dist/ node_modules/",
     "pretest": "npm run build",
     "test": "NODE_ENV=development jest",
     "coveralls": "NODE_ENV=development jest --coverage && cat ./tests/coverage/lcov.info | coveralls",
@@ -32,23 +32,31 @@
   "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/Nic30/d3-wave/issues",
-    "email" : "Nic30original@gmail.com"
+    "email": "Nic30original@gmail.com"
   },
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^5.15.0",
-    "d3": "^6.5.0"
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+	"@types/d3": "^7.4.0",
+    "d3": "^7.8.4"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.11.5",
-    "@babel/preset-flow": "^7.10.4",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "coveralls": "^3.1.0",
-    "eslint": "^7.10.0",
+    "@babel/preset-env": "^7.21.4",
+    "@babel/preset-flow": "^7.21.4",
+    "@babel/preset-typescript": "^7.21.4",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@tsconfig/node16": "^1.0.3",
+    "coveralls": "^3.1.1",
+    "eslint": "^8.39.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^26.4.2",
-    "rollup": "^2.28.2",
-    "rollup-plugin-postcss": "^3.1.8"
+    "jest": "^29.5.0",
+    "rimraf": "^5.0.0",
+    "rollup": "^3.20.7",
+    "rollup-plugin-postcss": "^4.0.2",
+    "ts-jest": "^29.1.0",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.4"
   },
   "jest": {
     "coverageDirectory": "<rootDir>/tests/coverage",

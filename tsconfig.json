@@ -1,0 +1,18 @@
+{
+  "extends": "@tsconfig/node16/tsconfig.json",
+  "compilerOptions": {
+    "alwaysStrict": true,
+    "target": "es2017",
+    "declaration": true,
+    "types": ["node", "jest"],    
+    "lib": ["es2020", "dom"],     
+    "module": "es2020",
+    "outDir": "./dist",
+    "rootDir": "./src/",
+    "sourceMap": true
+  }, 
+ "typingOptions": {
+    "enableAutoDiscovery": true
+  },
+  "include": ["./src/**/*.ts"]
+}
