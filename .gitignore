@@ -7,3 +7,6 @@ tests/coverage*
 .project
 package-lock.json
 
+
+.vscode/
+
