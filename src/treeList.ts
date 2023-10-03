@@ -163,10 +163,12 @@ export class TreeList {
 		}
 
 		if (this.rootElm) {
+			// update rendered
 			if (this.labelG)
 				this.labelG.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>('.labelcell').remove();
 			this.update();
 		} else {
+			// update before rendering
 			this.resolveSelection();
 			if (this._onChange) {
 				this._onChange(this.nodes);
@@ -225,7 +227,7 @@ export class TreeList {
 			.classed('labelcell', true)
 			// .attr("transform", () => "translate(" + source.y0 + "," + source.x0 + ")") // for transition
 			.classed('selected', function (d: HierarchyNodeWaveGraphSignalWithXYId) {
-				return !!d.data.isSelected;
+				return !!d.data.type.isSelected;
 			});
 
 		var barHeight = this.barHeight;

@@ -10,7 +10,8 @@ export class WaveGraphSignalTypeInfo {
 	width?: number | number[]; // width for bit vectors or sequence of array sizes ending with width of bit vector elements in this array
 	formatter?: string | ((d: AnyWaveGraphValue) => string); // string constant or function which specifies how the renderer should format values
 	renderer: RowRendererBase | undefined;
-
+	isSelected?: boolean; // specifies if the signal row was selected in GUI, used for highglight and manipulation
+	
 	constructor(name: string, width: number | undefined) {
 		this.name = name;
 		this.width = width;
@@ -24,7 +25,6 @@ export class WaveGraphSignal {
 	name: string;
 	type: WaveGraphSignalTypeInfo;
 	data: SignalDataValueTuple[];
-	isSelected?: boolean;
 	children?: WaveGraphSignal[];
 	_children?: WaveGraphSignal[];
 

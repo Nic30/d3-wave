@@ -24,7 +24,7 @@ export class SignalContextMenu extends ContextMenu<HierarchyNodeWaveGraphSignalW
 			d.data.data.type.formatter = newFormatter;
 			const currentRenderrer = d.data.data.type.renderer;
 			waveGraph.treelist?.visibleNodes().forEach(function (d: HierarchyNodeWaveGraphSignalWithXYId) {
-				if (d.data.isSelected && d.data.type.renderer === currentRenderrer) {
+				if (d.data.type.isSelected && d.data.type.renderer === currentRenderrer) {
 					// === currentRenderrer because we do not want to change format on signals
 					// which do not support this format option
 					d.data.type.formatter = newFormatter;
@@ -54,9 +54,9 @@ export class SignalContextMenu extends ContextMenu<HierarchyNodeWaveGraphSignalW
 					elm: SVGGElement,
 					data: ContextMenuItem<HierarchyNodeWaveGraphSignalWithXYId>,
 					index: number) => {
-					d.data.data.isSelected = true;
+					d.data.data.type.isSelected = true;
 					return waveGraph.treelist?.filter((d) => {
-						return !d.isSelected;
+						return !d.type.isSelected;
 					});
 				}
 			),
