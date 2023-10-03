@@ -89,7 +89,7 @@
 }
 
 .d3-wave .labelcell.selected rect {
-	opacity: 50%;
+	opacity: 30%;
 	fill: aqua;
 }
 
@@ -116,4 +116,12 @@
 
 .d3-wave .axis .icons {
     fill: white;
+}
+
+.d3-wave .value-background {
+	opacity: 0%;
+}
+.d3-wave .value-background.selected {
+	opacity: 30%;
+	fill: aqua;
 }
