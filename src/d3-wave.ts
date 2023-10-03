@@ -9,7 +9,7 @@ import { RowRendererStruct } from './rowRenderers/struct';
 import { RowRendererArray } from './rowRenderers/array';
 import { createTimeFormatterForTimeRange } from './timeFormat';
 import { TreeList } from './treeList';
-import { faQuestion, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faQuestion, faDownload, faArrowsH, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { DragBarVertical } from './dragBar';
 import { exportStyledSvgToBlob } from './exportSvg'
 import { SignalContextMenu } from './signalLabelContextMenu';
@@ -78,63 +78,51 @@ export class WaveGraph {
 		this.treelist = null;
 	}
 
-	setZoom() {
+	_setZoom() {
 		const timeRange = this.xRange;
 		const _thisWaveGraph = this;
 		this.timeZoom = d3.zoom<SVGGElement, undefined>()
-			.scaleExtent([1 / timeRange[1], 1.1])
+			.scaleExtent([1 / Math.max(1, timeRange[1]), 1.1])
 			.translateExtent([[timeRange[0], 0], [timeRange[1], 0]])
-			.on('zoom', this.zoomed.bind(this));
+			.on('zoom', this._zoomed.bind(this));
 		this.dataG.call(this.timeZoom);
 	}
-	zoomed(ev: d3.D3ZoomEvent<SVGGElement, any>) {
+	_zoomed(ev: d3.D3ZoomEvent<SVGGElement, any>) {
+		// https://stackoverflow.com/questions/69109270/updating-d3-zoom-behavior-from-v3
 		var range = this.xRange;
 		var t = ev.transform;
 		var totalRange = range[1] - range[0];
-		if (this.xAxisG) {
-			const domainElm = this.xAxisG.select('.domain');
-			if (!domainElm)
-				return;
-			const domainElmNode = domainElm.node();
-			if (!domainElmNode)
-				return;
-			var displayWidth = (domainElmNode as SVGGraphicsElement).getBBox().width;
-			var kDeltaToScroll = 0;
-			if (ev.sourceEvent.shiftKey) {
-				// horizontall scroll in data
-				var curR = this.sizes.row.range;
-				var prevK = (curR[1] - curR[0]) / totalRange;
-				kDeltaToScroll = t.k - prevK;
-				//console.log([t.k, prevK]);
-				(t as any).k = prevK;
-			}
-			// zoom in time domain
-			var currentRange = totalRange * t.k;
-			//console.log(["kDeltaToScroll", kDeltaToScroll, "currentRange", currentRange, 't.x', t.x]);
-			var begin = (-t.x / displayWidth) * currentRange;
-			//console.log(["begin0", begin]);
-			if (kDeltaToScroll < 0) {
-				begin -= currentRange * 0.1;
-			} else if (kDeltaToScroll > 0) {
-				begin += currentRange * 0.1;
-			}
-			//console.log(["begin1", begin]);
-			begin = Math.max(Math.min(begin, range[1] - currentRange), 0);
-			//console.log(["begin2", begin]);
-			(t as any).x = -(begin / currentRange) * displayWidth;
-			var end = begin + currentRange;
-			end = Math.max(end, 1);
+		if (!this.xAxisG)
+			return;
+		const domainElm = this.xAxisG.select('.domain');
+		if (!domainElm)
+			return;
+		const domainElmNode = domainElm.node();
+		if (!domainElmNode)
+			return;
+		const sizes = this.sizes;
+		const xAxisScale = d3.scaleLinear()
+			.domain(this.xRange)
+			.range([0, sizes.width]);
 
-			this.sizes.row.range = [begin, end];
-			if (this.xAxis) {
-				// update tick formatter becase time range has changed
-				// and we may want to use a different time unit
-				this.xAxis.tickFormat(
-					createTimeFormatterForTimeRange(this.sizes.row.range)
-				);
-			}
-			this.draw();
+		let zoomedScale = t.rescaleX(xAxisScale);
+		if (zoomedScale.domain()[0] < 0) {
+			zoomedScale.domain([0, Math.max(zoomedScale.domain()[1], 0)])
 		}
+		
+		const xAxis = this.xAxis;
+		if (!xAxis)
+			return;
+		xAxis.scale(zoomedScale);
+
+		this.sizes.row.range = zoomedScale.domain() as [number, number];
+		// update tick formatter becase time range has changed
+		// and we may want to use a different time unit
+		xAxis.tickFormat(
+			createTimeFormatterForTimeRange(this.sizes.row.range)
+		);
+		this.draw();
+
 	}
 	/*
 	 * extract width/height from svg and apply margin to main "g"
@@ -289,7 +277,23 @@ export class WaveGraph {
 					const url = URL.createObjectURL(svg);
 					window.open(url);
 				}
-			}];
+			},
+			{
+				'icon': faArrowsH,
+				'tooltip': 'Reset time zoom to fit screen',
+				'onclick': function () {
+					_this.zoomReset();
+				}
+			},
+			{
+				'icon': faFilter,
+				'tooltip': 'Filter signals to display',
+				'onclick': function() {
+
+				}
+			}
+
+		];
 
 		const tooltip = new Tooltip((d) => d.tooltip);
 		if (!this.yAxisG)
@@ -429,7 +433,7 @@ export class WaveGraph {
 
 		var sizes = this.sizes;
 		this.xRange[1] = sizes.row.range[1] = maxT;
-		this.setZoom();
+		this._setZoom();
 		var ROW_Y = sizes.row.height + sizes.row.ypadding;
 		var graph = this;
 		if (!this.treelist) {
@@ -445,4 +449,15 @@ export class WaveGraph {
 			throw new Error("treelist should be already allocated");
 		this.treelist.data(this._allData);
 	}
+	zoomReset() {
+		if (!this.timeZoom)
+			throw new Error("timeZoom was not initialized");
+		this.dataG.call(this.timeZoom.transform, d3.zoomIdentity)
+	}
+	//zoomToTimeRange(start: number, end: number) {
+	//	if (!this.timeZoom)
+	//		throw new Error("timeZoom was not initialized");
+	//	d3.zoomTransform
+	//	this.dataG.call(this.timeZoom.scaleBy, d3.zoomIdentity)
+	//}
 }
