@@ -22,6 +22,7 @@ export class RowRendererBits extends RowRendererBase {
 	}
 	/*eslint no-unused-vars: ["error", { "args": "none" }]*/
 	render(parent: d3.Selection<SVGGElement, any, any, any>, data: SignalDataValueTuple[], typeInfo: WaveGraphSignalTypeInfo, formatter?: string | ((d: AnyWaveGraphValue) => string)) {
+		super.render(parent, data, typeInfo, formatter);
 		var waveRowHeight = this.waveGraph.sizes.row.height;
 		var waveRowYpadding = this.waveGraph.sizes.row.ypadding;
 		var waveRowX = this.waveGraph.waveRowX;

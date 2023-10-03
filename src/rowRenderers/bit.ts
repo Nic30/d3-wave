@@ -8,6 +8,7 @@ export class RowRendererBit extends RowRendererBase {
 	}
 
 	render(parent: d3.Selection<SVGGElement, any, any, any>, data: SignalDataValueTuple[], typeInfo: WaveGraphSignalTypeInfo, formatter?: string | ((d: AnyWaveGraphValue) => string)) {
+		super.render(parent, data, typeInfo, formatter);
 		var waveRowHeight = this.waveGraph.sizes.row.height;
 		// var waveRowYpadding = this.waveGraph.sizes.row.ypadding;
 		var waveRowX = this.waveGraph.waveRowX;
@@ -63,7 +64,7 @@ export class RowRendererBit extends RowRendererBase {
 			.attr('d', line);
 
 		// Add the scatterplot for invalid values
-		parent.selectAll('rect')
+		parent.selectAll('.value-rect-invalid')
 			.remove()
 			.exit()
 			.data(invalidRanges)
