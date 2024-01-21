@@ -11,14 +11,23 @@ export interface HierarchyNodeWaveGraphSignalWithXYId extends d3.HierarchyNode<W
 	y?: number;
 	_children?: this[];
 }
-
+/*
+ * :ivar barHeight: Height of a single item in the list.
+ * :ivar labelMoving: Object which is implementing moving of bars (drag&drop)
+ * :ivar width: total width of a whole emement with a tree list
+ * :ivar height: total height of a whole emement with a tree list
+ * :ivar root: object whith hierarchical data which is displayed 
+ * :ivar rootElm: element where this element is placed
+ * :ivar labelG: main SVG G  
+ * 
+ **/
 export class TreeList {
 	barHeight: number;
 	labelMoving: SignalLabelManipulation;
 	width: number | undefined;
 	height: number | undefined;
-	rootElm: d3.Selection<SVGGElement, undefined, HTMLDivElement, undefined> | null;
 	root: HierarchyNodeWaveGraphSignalWithXYId | null;
+	rootElm: d3.Selection<SVGGElement, undefined, HTMLDivElement, undefined> | null;
 	labelG: d3.Selection<SVGGElement, undefined, HTMLDivElement, undefined> | null;
 	scrollbarG: d3.Selection<SVGGElement, any, any, any> | null;
 	scroll: Scrollbar | null;
@@ -29,8 +38,8 @@ export class TreeList {
 	constructor(barHeight: number, contextMenu: SignalContextMenu) {
 		this.barHeight = barHeight;
 		this.contextMenu = contextMenu;
-		this.rootElm = null;
 		this.root = null;
+		this.rootElm = null;
 		this.labelG = null;
 		this.scrollbarG = null;
 		this.scroll = null;
