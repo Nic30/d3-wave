@@ -1,4 +1,4 @@
-import type { WaveGraph } from '../d3-wave';
+import type { WaveGraph } from '../waveGraph';
 import { AnyWaveGraphValue, SignalDataValueTuple, WaveGraphSignalTypeInfo } from '../data';
 
 export class RowRendererBase {

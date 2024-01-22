@@ -19,6 +19,7 @@ import { WaveGraphSizes } from './sizes';
 
 import './d3-wave.css';
 
+
 // main class which constructs the signal wave viewer
 export class WaveGraph {
 	svg: d3.Selection<SVGSVGElement, undefined, HTMLDivElement, undefined>; // main SVG element where this graph is rendered

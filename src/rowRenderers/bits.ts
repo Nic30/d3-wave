@@ -1,6 +1,6 @@
 import { RowRendererBase } from './base';
 import { SCALAR_FORMAT } from './numFormat';
-import type { WaveGraph } from '../d3-wave';
+import type { WaveGraph } from '../waveGraph';
 import type { AnyWaveGraphValue, SignalDataValueTuple, WaveGraphSignalTypeInfo } from '../data';
 
 /**

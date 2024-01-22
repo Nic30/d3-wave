@@ -1,5 +1,5 @@
-import type { WaveGraph } from './d3-wave';
-import { ContextMenu, ContextMenuItem } from './d3-context-menu';
+import type { WaveGraph } from './waveGraph';
+import { ContextMenu, ContextMenuItem } from './contextMenu';
 import type { HierarchyNodeWaveGraphSignalWithXYId } from './treeList';
 
 export class SignalContextMenu extends ContextMenu<HierarchyNodeWaveGraphSignalWithXYId> {

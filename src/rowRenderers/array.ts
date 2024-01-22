@@ -1,4 +1,4 @@
-import type { WaveGraph } from '../d3-wave';
+import type { WaveGraph } from '../waveGraph';
 import { AnyWaveGraphValue, WaveGraphSignalTypeInfo } from '../data';
 import { RowRendererBits } from './bits';
 import { VECTOR_FORMAT } from './numFormat';

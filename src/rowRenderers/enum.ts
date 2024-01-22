@@ -1,5 +1,5 @@
 import { RowRendererBits } from './bits';
-import type { WaveGraph } from '../d3-wave';
+import type { WaveGraph } from '../waveGraph';
 import { AnyWaveGraphValue, WaveGraphSignalTypeInfo } from '../data';
 
 export const STRING_FORMAT: { [formatName: string]: (d: AnyWaveGraphValue) => string } = {
