@@ -9,6 +9,7 @@ export default {
 	external: ['@fortawesome/free-solid-svg-icons', 'd3'],
 	plugins: [
 		resolve({
+			preventAssignment: true,
 			jsnext: true,
 			module: true,
 		}),
@@ -21,7 +22,8 @@ export default {
 		extend: true,
 		file: `dist/d3-wave.js`,
 		sourcemap: !production,
-		format: 'umd',
+		// https://dev.to/remshams/rolling-up-a-multi-module-system-esm-cjs-compatible-npm-library-with-typescript-and-babel-3gjg
+		format: 'umd', // "ECMAScript Modul" (esm), "CommonJs" (cjs) and "Asynchronous Module Definition" (AMD)
 		globals: {
 			// lib name: name where lib exports itself on "window"
 			"d3": "d3",

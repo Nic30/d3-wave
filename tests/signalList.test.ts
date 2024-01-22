@@ -1,13 +1,16 @@
 "use strict";
 
 import * as d3 from 'd3';
-import WaveGraph from '../src/d3-wave';
+import { WaveGraph } from '../src/waveGraph';
 import * as fs from 'fs';
-import {simulateEvent} from './simulateEvent.js';
+import { simulateEvent } from './simulateEvent';
+import { describe, expect, it } from '@jest/globals';
+import { HierarchyNodeWaveGraphSignalWithXYId } from '../src/treeList';
+import { WaveGraphSignal } from '../src/data';
 
-function collectLabels(root, offset, cnt, allLabels, labelsWithChildren) {
+function collectLabels(root: WaveGraphSignal, offset: number, cnt:number, allLabels: string[], labelsWithChildren: string[]) {
 	var offsetCntr = 0;
-	function _collectLabels(root) {
+	function _collectLabels(root: WaveGraphSignal) {
 		if (allLabels.length >= cnt)
 			return;
 		if (offsetCntr < offset) {
@@ -23,8 +26,8 @@ function collectLabels(root, offset, cnt, allLabels, labelsWithChildren) {
 	_collectLabels(root);
 }
 
-function getVisibleLabels(svg) {
-	return svg.selectAll(".labelcell text")
+function getVisibleLabels(svg: d3.Selection<SVGSVGElement, undefined, HTMLDivElement, undefined>) {
+	return svg.selectAll<SVGTextElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell text")
 		.data()
 		.sort((a, b) => d3.ascending(a.y, b.y))
 		.map((d) => d.data.name);
@@ -33,27 +36,29 @@ function getVisibleLabels(svg) {
 describe('Testing signal label select, drag and zoom', function() {
 	var ROW_Y = 25;
 	var svg = d3.select('body')
-		.append('svg');
+		.append('svg') as d3.Selection<SVGSVGElement, undefined, HTMLDivElement, undefined>;
 
 	svg.attr('width', 500)
 		.attr('height', 500);
 	var wave = new WaveGraph(svg);
-	var signalData = JSON.parse(fs.readFileSync('examples/FifoTC_test_normalOp.json', 'utf8'));
+	var signalData = JSON.parse(fs.readFileSync('examples/FifoTC_test_normalOp.json', 'utf8')) as WaveGraphSignal;
 	wave.bindData(signalData);
 	wave.draw();
 	var expectedLabelCnt = 500 / ROW_Y - 1;
-	var allLabels = [];
-	var labelsWithChildren = [];
+	var allLabels: string[] = [];
+	var labelsWithChildren: string[] = [];
 	collectLabels(signalData, 0, expectedLabelCnt, allLabels, labelsWithChildren);
-    function getLabels() {
-	    return svg.selectAll(".labelcell")
+    
+	function getLabels() {
+	    return svg.selectAll<SVGGElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell")
 	    	      .sort((a, b) => d3.ascending(a.y, b.y))
     }
-    function selectLabelByName(name) {
+    function selectLabelByName(name: string) {
     	var n = getLabels().filter((d) => d.data.name === name).node();
     	expect(n).toBeDefined();
     	return n;
     }
+	
 	it('SVG has correct count of labels', () => {
 		expect(wave.data.length).toBe(expectedLabelCnt);
 		var labels = getVisibleLabels(svg);
@@ -61,30 +66,34 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(labels).toStrictEqual(allLabels);
 	});
 	it('labels with children are expandable', () => {
-		var exandables = svg.selectAll(".labelcell .expandable")
+		var exandables = svg.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell .expandable")
 			.data()
 			.sort((a, b) => d3.ascending(a.y, b.y))
 			.map((d) => d.data.name);
 		expect(exandables).toStrictEqual(labelsWithChildren);
 	});
 	it('can collapse and expand root', () => {
-		var rootExpandIcon = svg.selectAll(".labelcell .expandable")
+		var rootExpandIcon = svg.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell .expandable")
 			.filter((d) => d.data.name === labelsWithChildren[0])
 			.node();
+		if (!rootExpandIcon)
+			throw new Error("rootExpandIcon not found");
 		simulateEvent(rootExpandIcon, 'click', {});
 		var labels = getVisibleLabels(svg);
 		expect(labels).toStrictEqual([labels[0],]);
 		simulateEvent(rootExpandIcon, 'click', {});
-		var labels = svg.selectAll(".labelcell text")
+		var labels = svg.selectAll<SVGTextElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell text")
 			.data()
 			.sort((a, b) => d3.ascending(a.y, b.y))
 			.map((d) => d.data.name);
 		expect(labels).toStrictEqual(allLabels);
 	});
 	it('can collapse and expand non root', () => {
-		var rootExpandIcon = svg.selectAll(".labelcell .expandable")
+		var rootExpandIcon = svg.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell .expandable")
 		    .filter((d) => d.data.name === 'dataIn')
             .node();
+		if (!rootExpandIcon)
+			throw new Error("rootExpandIcon not found");
 		simulateEvent(rootExpandIcon, 'click', {});
 		var labels = getVisibleLabels(svg);
 		expect(labels).toContain('dataIn');
@@ -93,7 +102,7 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(labels).not.toContain('dataIn_wait');
 		
 		simulateEvent(rootExpandIcon, 'click', {});
-		var labels = svg.selectAll(".labelcell text")
+		var labels = svg.selectAll<SVGTextElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell text")
 			.data()
 			.sort((a, b) => d3.ascending(a.y, b.y))
 			.map((d) => d.data.name);
@@ -101,10 +110,13 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(svg.selectAll(".labelcell.selected").size()).toBe(0)
 	});
 	it('can scroll down and up using wheel', () => {
-		var labelsG = svg.select(".axis.axis-y").node();
+		var labelsG = svg.select(".axis.axis-y").node() as Element;
+		if (!labelsG) {
+			throw new Error("labelsG was not found");
+		}
 		simulateEvent(labelsG, 'wheel', { deltaY: 3, deltaX: 0 });
-		var _allLabels = [];
-		var _labelsWithChildren = [];
+		var _allLabels: string[] = [];
+		var _labelsWithChildren: string[] = [];
 		collectLabels(signalData, 1, expectedLabelCnt, _allLabels, _labelsWithChildren);
 		var labels = getVisibleLabels(svg);
 		expect(labels).toStrictEqual(_allLabels);
@@ -115,25 +127,28 @@ describe('Testing signal label select, drag and zoom', function() {
 	});
 	var mover = svg.select(".axis.axis-y .mover");
 	it('can scroll down and up using scrollbar drag', () => {
-		simulateEvent(mover.node(), 'drag', { deltaY: ROW_Y, deltaX: 0 });
-		var _allLabels = [];
-		var _labelsWithChildren = [];
+		var moverNode = mover.node() as Element;
+		if (!moverNode)
+			throw new Error("Can not find mover");
+		simulateEvent(moverNode, 'drag', { deltaY: ROW_Y, deltaX: 0 });
+		var _allLabels: string[] = [];
+		var _labelsWithChildren: string[] = [];
 		collectLabels(signalData, 1, expectedLabelCnt, _allLabels, _labelsWithChildren);
 		var labels = getVisibleLabels(svg);
 		expect(labels).toStrictEqual(_allLabels);
 
-		simulateEvent(mover.node(), 'drag', { deltaY: -ROW_Y, deltaX: 0 });
+		simulateEvent(moverNode, 'drag', { deltaY: -ROW_Y, deltaX: 0 });
 		labels = getVisibleLabels(svg);
 		expect(labels).toStrictEqual(allLabels);
 	});
 	it('mover and scrollbar has correct height', () => {
-		var _allLabels = [];
-		var _labelsWithChildren = [];
+		var _allLabels: string[] = [];
+		var _labelsWithChildren: string[] = [];
 		collectLabels(signalData, 0, Infinity, _allLabels, _labelsWithChildren);
-		function checkScrollbar(height) {
+		function checkScrollbar(height: number) {
 			var scrollbarSubBars = svg.selectAll(".scrollbar .subBar");
 			expect(scrollbarSubBars.size()).toBe(_allLabels.length);
-			var sbHeight = scrollbarSubBars.attr("height");
+			var sbHeight = +scrollbarSubBars.attr("height");
 			var h = height - ROW_Y - 15;
 			expect(scrollbarSubBars.size() * sbHeight).toBe(h);
 			// number of visible / total number of labels
@@ -167,7 +182,11 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(selectedLabels.size()).toBe(0);
 		
 		var dataIn_en = selectLabelByName('dataIn_en');
+		if (!dataIn_en)
+			throw new Error("can not find signal group named dataIn_en")
 		var dataOut_en = selectLabelByName('dataOut_en');
+		if (!dataOut_en)
+			throw new Error("can not find signal group named dataOut_en")
 		
 		simulateEvent(dataIn_en, 'click', {});
 		simulateEvent(dataOut_en, 'click', {});
@@ -200,7 +219,7 @@ describe('Testing signal label select, drag and zoom', function() {
 	    var labelNodes = labels.nodes();
 		simulateEvent(labelNodes[1], 'click', {'shiftKey': true});
 		simulateEvent(labelNodes[4], 'click', {'shiftKey': true});
-		var selectedLabels = svg.selectAll(".labelcell.selected")
+		var selectedLabels = svg.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell.selected")
     		.sort((a, b) => d3.ascending(a.y, b.y));
 		expect(selectedLabels.size()).toBe(4);
 		var sn = selectedLabels.nodes();
@@ -213,7 +232,7 @@ describe('Testing signal label select, drag and zoom', function() {
 		expect(selectedLabels.size()).toBe(1);
 		simulateEvent(labelNodes[1], 'click', {'shiftKey': true});
 		
-	    selectedLabels = svg.selectAll(".labelcell.selected")
+	    selectedLabels = svg.selectAll<SVGRectElement, HierarchyNodeWaveGraphSignalWithXYId>(".labelcell.selected")
     		.sort((a, b) => d3.ascending(a.y, b.y));
 		expect(selectedLabels.size()).toBe(4);
 		sn = selectedLabels.nodes();

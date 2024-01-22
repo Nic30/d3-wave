@@ -3,13 +3,17 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "target": "es2017",
+    "moduleResolution": "node",
     "declaration": true,
-    "types": ["node", "jest"],    
-    "lib": ["es2020", "dom"],     
+    "esModuleInterop": true,                        /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
+    "forceConsistentCasingInFileNames": true,        /* Disallow inconsistently-cased references to the same file. */
+    "types": ["node"],
+    "lib": ["es2020", "dom"],
     "module": "es2020",
     "outDir": "./dist",
     "rootDir": "./src/",
-    "sourceMap": true
+    "sourceMap": true,
+    "strict": true                                 /* Enable all strict type-checking options. */
   }, 
  "typingOptions": {
     "enableAutoDiscovery": true

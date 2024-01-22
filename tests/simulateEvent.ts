@@ -1,7 +1,5 @@
-"use strict";
 
-
-export function simulateEvent(element, eventName, eventData) {
+export function simulateEvent(element: Element | HTMLElement | SVGElement, eventName: string, eventData: any) {
 	if (eventName === 'drag') {
 		let rect = element.getBoundingClientRect();
 		let screen = {
@@ -41,8 +39,8 @@ export function simulateEvent(element, eventName, eventData) {
 	}
 }
 
-export function _simulateEvent(element, eventName, eventData) {
-	var eventType;
+export function _simulateEvent(element: Element | HTMLElement | SVGElement, eventName: string, eventData: any) {
+	var eventType: any;
 	if (['mousedown', 'mousemove', 'mouseup', 'click'].includes(eventName)) {
 		eventType = MouseEvent;
 	} else if ('wheel' == eventName) {

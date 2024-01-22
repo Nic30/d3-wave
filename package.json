@@ -37,7 +37,7 @@
   "homepage": "https://github.com/Nic30/d3-wave#readme",
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.4.0",
-	"@types/d3": "^7.4.0",
+    "@types/d3": "^7.4.0",
     "d3": "^7.8.4"
   },
   "devDependencies": {
@@ -47,23 +47,35 @@
     "@rollup/plugin-node-resolve": "^15.0.2",
     "@rollup/plugin-typescript": "^11.1.0",
     "@tsconfig/node16": "^1.0.3",
+    "@types/jest": "^29.5.11",
     "coveralls": "^3.1.1",
     "eslint": "^8.39.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "rimraf": "^5.0.0",
     "rollup": "^3.20.7",
     "rollup-plugin-postcss": "^4.0.2",
-    "ts-jest": "^29.1.0",
+    "ts-jest": "^29.1.1",
     "tslib": "^2.5.0",
     "typescript": "^5.0.4"
   },
   "jest": {
     "coverageDirectory": "<rootDir>/tests/coverage",
     "verbose": true,
+    "testEnvironment": "jsdom",
     "moduleNameMapper": {
-      "\\.(css|less)$": "identity-obj-proxy"
-    }
+      "\\.(css|less)$": "identity-obj-proxy",
+      "d3": "<rootDir>/node_modules/d3/dist/d3.min.js"
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ]
   },
   "publishConfig": {
     "access": "public"
