@@ -117,10 +117,12 @@ export class TreeList {
 			.attr('class', 'scrollbar');
 
 		this.scroll = new Scrollbar(this.barHeight, this.scrollbarG);
+		this._bindScrollData();
 		var update = this.update.bind(this);
 		this.scroll
 			.registerWheel(this.rootElm)
 			.onDrag(function (startPrec: number) { update(); });
+		this.scroll.size(this.width as number, this.height as number);
 	}
 	_setLabelWidth(_width: number) {
 		var barHeight = this.barHeight;
@@ -153,6 +155,21 @@ export class TreeList {
 		}
 		return this;
 	}
+	_bindScrollData() {
+		if (!this.root)
+			throw new Error("this.root should be already initialized")
+		if (this.scroll) {
+			const flatenedData: HierarchyNodeWaveGraphSignalWithXYId[] = [];
+			let maxDepth = 0;
+			this.root.eachBefore(function (d) {
+				flatenedData.push(d);
+				maxDepth = Math.max(maxDepth, d.depth);
+			});
+
+			this.scroll.data(flatenedData, maxDepth);
+		}
+
+	}
 	data(_data: WaveGraphSignal) {
 		this.root = d3.hierarchy(_data, function (d: WaveGraphSignal) { return d.children; });
 		// Compute the flattened node list.
@@ -161,15 +178,7 @@ export class TreeList {
 		this.root.eachBefore((n: HierarchyNodeWaveGraphSignalWithXYId) => {
 			(n as any).id = i++;
 		});
-		const flatenedData: HierarchyNodeWaveGraphSignalWithXYId[] = [];
-		let maxDepth = 0;
-		this.root.eachBefore(function (d) {
-			flatenedData.push(d);
-			maxDepth = Math.max(maxDepth, d.depth);
-		});
-		if (this.scroll) {
-			this.scroll.data(flatenedData, maxDepth);
-		}
+		this._bindScrollData();
 
 		if (this.rootElm) {
 			// update rendered
