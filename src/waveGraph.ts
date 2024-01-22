@@ -107,9 +107,9 @@ export class WaveGraph {
 			.range([0, sizes.width]);
 
 		let zoomedScale = t.rescaleX(xAxisScale);
-		if (zoomedScale.domain()[0] < 0) {
-			zoomedScale.domain([0, Math.max(zoomedScale.domain()[1], 0)])
-		}
+		//if (zoomedScale.domain()[0] < 0) {
+		//	zoomedScale.domain([0, Math.max(zoomedScale.domain()[1], 0)])
+		//}
 		
 		const xAxis = this.xAxis;
 		if (!xAxis)
@@ -376,7 +376,8 @@ export class WaveGraph {
 				let data = d.data;
 				if (data && data.length) {
 					const parent = d3.select(this);
-					data = filterDataByTime(data, graph.sizes.row.range);
+					const range = graph.sizes.row.range;
+					data = filterDataByTime(data, [Math.max(range[0], 0), Math.max(range[1], 1)]);
 					if (!signalType.renderer) {
 						throw new Error("Signal must have renderer already assinged");
 					}
