@@ -13,7 +13,7 @@ export class RowRendererBase {
 	}
 	/*eslint no-unused-vars: ["error", { "args": "none" }]*/
 	select(typeInfo: WaveGraphSignalTypeInfo): boolean {
-		throw new Error('Should be overriden in class implementation');
+		throw new Error('Should be overridden in class implementation');
 	}
 
 	render(parent: d3.Selection<SVGGElement, any, any, any>, data: SignalDataValueTuple[], typeInfo: WaveGraphSignalTypeInfo, formatter?: string | ((d: AnyWaveGraphValue) => string)) {
