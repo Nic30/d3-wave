@@ -18,7 +18,8 @@ npm test               # run tests
 python -m http.server  # run http server in root directory in order to open the examples in ./examples directory
 ```
 
-* [vscode-extension-digitalcircuitanalysis](https://github.com/Nic30/vscode-extension-digitalcircuitanalysis) - vscode plugin containing d3-wave
+* [vscode-extension-digitalcircuitanalysis](https://github.com/Nic30/vscode-extension-digitalcircuitanalysis) - vscode plugin for hw developement integrating d3-wave.
+* [jupyter_widget_hwt](https://github.com/Nic30/jupyter_widget_hwt) - Jupyter widgets for hw developement integrating d3-wave.
 
 ## Features
 
