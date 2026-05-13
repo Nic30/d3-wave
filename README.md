@@ -18,6 +18,8 @@ npm test               # run tests
 python -m http.server  # run http server in root directory in order to open the examples in ./examples directory
 ```
 
+* [vscode-extension-digitalcircuitanalysis](https://github.com/Nic30/vscode-extension-digitalcircuitanalysis) - vscode plugin containing d3-wave
+
 ## Features
 
 * Vertical scrolling and zoom in time domain
