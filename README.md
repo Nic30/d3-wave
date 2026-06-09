@@ -62,4 +62,5 @@ For more details check `src/rowRenderers`. For example for type: `{"name": "wire
 * [wavedrom](https://github.com/wavedrom/wavedrom) static waveform printer
 * [JSwave](https://github.com/kwf37/JSwave) Javascript visualizer for vcd
 * [impulse.vscode](https://github.com/toem/impulse.vscode) event and waveform visualization and analysis workbench
+* [surfer](https://gitlab.com/surfer-project/surfer)
 
